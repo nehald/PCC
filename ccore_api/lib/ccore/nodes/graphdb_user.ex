@@ -35,7 +35,7 @@ defmodule CCore.GraphDbUser do
    ###
    IO.puts "graph1"
    {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
-   :timer.sleep(2000)
+   :timer.sleep(1000)
    IO.puts inspect Swarm.registered
    {:ok, response, channel} = PhoenixClient.Channel.join(socket,user_topic)
     state = %{

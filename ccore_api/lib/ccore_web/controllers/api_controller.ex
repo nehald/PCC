@@ -23,7 +23,7 @@ defmodule CCoreWeb.ApiController do
   ## 2. owner/userid (derived from cookid data)
   ## 3. type (required)
   ## 4. channel (optional) 
-  def spawn_sat(conn, params) do
+  def spawn(conn, params) do
     ## get the userid  
 
     current_user =
@@ -50,9 +50,19 @@ defmodule CCoreWeb.ApiController do
     params = Map.put(params, :current_user, current_user)
     params = Map.put(params, :user_id, user_id)
     params = Map.put(params, :user_topic, user_topic_id)
- 
-    {:ok, satpid} = Sat.start_link(params)
+   
+    #> params  
+    #%{      
+    #	:current_user => "user:nehal.desaix@aero.org",
+    # 	:user_id => #PID<0.564.0>,
+    #	:user_topic => "topic:user:nehal.desaix@aero.org",
+    #	"extra_channels" => ["topic:missileroom"],
+    #	"name" => "GOES 15",
+    #	"visible" => 0
+    #}
+    
 
+    {:ok, satpid} = Sat.start_link(params)
     # Swarm.register_name(name, satpid)
     return_dict = %{"cmd" => "spawn", "name" => sat_name}
     json(conn, return_dict)

@@ -14,6 +14,7 @@ defmodule Sat do
   #
   def init(state) do
     IO.puts inspect(state) 
+    IEx.pry
     {:ok,txpid} = Tx.start_link(state)
     state = Map.put(state,:txpid,txpid)
    {:ok, state}

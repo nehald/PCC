@@ -5,6 +5,7 @@ defmodule CCoreWeb.UserRoomChannel do
 
   def join("topic:user:" <> user_id, payload, socket) do
     send(self(), :after_join)
+    {:ok,socket}
     #{:ok, assign(socket, :user_id, user_id)}
   end
 
@@ -33,7 +34,7 @@ defmodule CCoreWeb.UserRoomChannel do
     push(socket, "presence_state", Presence.list(socket))
 
     {:ok, _} =
-      Presence.track(socket, socket.assigns.user_id, %{
+      Presence.track(socket, socket.assigns.userid, %{
         online_at: inspect(System.system_time(:second))
       })
 

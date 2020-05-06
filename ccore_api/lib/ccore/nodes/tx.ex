@@ -33,6 +33,7 @@ defmodule Tx do
      }
     """
 
+    IEx.pry
     topics = [Map.get(state, :user_topic)] ++ Map.get(state, "extra_channels")
     name = Map.get(state, :name)
 

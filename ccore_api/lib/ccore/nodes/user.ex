@@ -13,14 +13,13 @@ defmodule CCore.User do
     ## start user channel 
     user_account = "user:" <> state.email
     user_topic = "topic:" <> user_account
-
     params = %{:userid => state.email} 
     socket_opts = [
       url: "ws://localhost:4000/socket/websocket",
       params:  params 
     ]
 
-    {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
+   {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
     :timer.sleep(1000)
     {:ok, response, channel} = PhoenixClient.Channel.join(socket, user_topic)
 

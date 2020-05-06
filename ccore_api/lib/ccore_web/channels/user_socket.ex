@@ -21,9 +21,9 @@ defmodule CCoreWeb.UserSocket do
   # performing token verification on connect.
 
   def connect(params, socket, connect_info) do
-    IO.puts "********************"<> inspect params
-    IEx.pry
-    userid = Map.get(params,:userid)
+    userid = Map.get(params,"userid")
+    IO.puts "********************"<> inspect params 
+    IO.puts "********************"<> inspect userid
     case userid do 
     nil ->
        userid = "anonymous_"<>Integer.to_string(:rand.uniform(100000)) 

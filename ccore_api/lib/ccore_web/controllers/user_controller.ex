@@ -58,7 +58,6 @@ defmodule CCoreWeb.UserController do
     swarm_reg_name = "user:"<>email
     case Swarm.whereis_name(swarm_reg_name) do
       :undefined ->
-        IO.puts("restarting user")
         args = %{:email => email}
         CCore.User.start_link(args)
         :timer.sleep(1000)
