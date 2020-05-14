@@ -28,25 +28,21 @@ defmodule CCore.GraphDbUser do
   #
   def init(init_arg) do
     [gname, user_topic] = init_arg
-    IEx.pry
-    g = Graph.new()
-
     socket_opts = [
          url:  "ws://localhost:4000/socket/websocket"
     ] 
 
    ###
-   IO.puts "graph1"
    {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
    :timer.sleep(1000)
    IO.puts inspect Swarm.registered
-   {:ok, response, channel} = PhoenixClient.Channel.join(socket,user_topic)
+   {:ok, _response, channel} = PhoenixClient.Channel.join(socket,user_topic)
     state = %{
       :socket => socket,
       :channel => channel,
       :name => gname,
       :status => :up,
-      :graph => g
+      :graph => Graph.new() 
     }
    IO.puts inspect(state)
    {:ok,state}  
