@@ -11,15 +11,17 @@ defmodule Sat do
   end
 
   # # Server Callbacks
+  #
   def init(state) do
-    IEx.pry 
     {:ok, txpid} = Tx.start_link(state)
     state = Map.put(state, :txpid, txpid)
     {:ok, state}
   end
 
+
   def add_service(service_pid) do
-  end
+    
+    end
 
   ## delayed receive loop
   ## delay the message from "delay" microseconds

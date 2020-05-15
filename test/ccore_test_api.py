@@ -1,8 +1,11 @@
 """
-   Hello
+    test for PCC apis
 """
 
+import pdb
 import requests
+
+
 URL = "http://localhost:4000/api/"
 headers = {"Content-Type": "application/json"}
 
@@ -38,9 +41,10 @@ def sign_in(email, password):
     return cookiejar
 
 
-def spawn(proc_type, name, extra_channels, visible, cookiejar):
+def spawn_proc(cookie_jar,proc_type, name, extra_channels, visible):
     """Spawn a process
     Arguments:
+       cookiejar  - user session id
        proc_type - type of process to start
        name - name of the process
        extra_channels - additional channels to route process data
@@ -58,7 +62,7 @@ def spawn(proc_type, name, extra_channels, visible, cookiejar):
         response = requests.post(url_spawn,
                                  headers=headers,
                                  json=spawn_data,
-                                 cookies=cookiejar)
+                                 cookies=cookie_jar)
         return response
     except requests.exceptions.RequestException as e_e:
         return {"Error": e_e}
@@ -69,7 +73,10 @@ def connect_procs(proc_a, proc_b):
     return "Foo"
 
 
-#cookie = auth("nehal.desaix@aero.org", "foobar")
+user_cookie = sign_in("nehal.desaix@aero.org", "foobar")
+spawn_handle = spawn_proc(user_cookie,"generic",  "generic", [],0)
+
+
 # spawn(cookie)
 #
 # print(cookie)

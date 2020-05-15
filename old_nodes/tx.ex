@@ -41,7 +41,6 @@ defmodule Tx do
     ]
 
     ### subscribe to extra channels 
-    IEx.pry
     channel_list = Enum.map(topics, fn c -> _join(socket_opts, c) end)
 
     state = %{

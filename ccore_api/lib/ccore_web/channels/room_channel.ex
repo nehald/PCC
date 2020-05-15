@@ -4,7 +4,7 @@ defmodule CCoreWeb.UserRoomChannel do
   require IEx
 
   def join("topic:user:" <> user_id, payload, socket) do
-    send(self(), :after_join)
+    #send(self(), :after_join)
     {:ok,socket}
     #{:ok, assign(socket, :user_id, user_id)}
   end

@@ -17,15 +17,13 @@ defmodule CCoreWeb.ApiController do
   defp get_user_topic_id(user_id) do
     "topic:" <> user_id
   end
+  
+  @doc """
+    Spawns the node  
 
-  ## sat configs 
-  ## 1. sat name (required)
-  ## 2. owner/userid (derived from cookid data)
-  ## 3. type (required)
-  ## 4. channel (optional) 
+   """
   def spawn(conn, params) do
     ## get the userid  
-
     current_user =
       conn
       |> get_session(:current_user_id)
@@ -46,11 +44,15 @@ defmodule CCoreWeb.ApiController do
       |> get_user_topic_id
 #      |> Swarm.whereis_name()
 
-    sat_name = Map.get(params, "name")
+
     params = Map.put(params, :current_user, current_user)
     params = Map.put(params, :user_id, user_id)
     params = Map.put(params, :user_topic, user_topic_id)
-   
+  
+    ## info that cames in from the curl 
+    type = Map.get(params,"proc_type")
+    name = Map.get(params, "name")
+    
     #> params  
     #%{      
     #	:current_user => "user:nehal.desaix@aero.org",
@@ -60,12 +62,25 @@ defmodule CCoreWeb.ApiController do
     #	"name" => "GOES 15",
     #	"visible" => 0
     #}
-    
 
-    {:ok, satpid} = Sat.start_link(params)
-    # Swarm.register_name(name, satpid)
-    return_dict = %{"cmd" => "spawn", "name" => sat_name}
-    json(conn, return_dict)
+    case type do  
+    "sat" ->
+        IEx.pry
+    	{:ok, pid} = Sat.start_link(params)
+        Swarm.register_name(name, pid)
+	return_dict = %{"cmd" => "spawn", "name" => name}
+        json(conn, return_dict)
+
+     "generic" ->
+    	{:ok, pid} = Generic.start_link(params)
+	return_dict = %{"cmd" => "spawn", "name" => name}
+        json(conn, return_dict)
+
+      _ ->
+    	return_dict = %{"cmd" => type, "name" => name}
+        json(conn, return_dict)
+     end   
+     # Swarm.register_name(name, satpid)
   end
 
   def get_graph(conn, params) do
