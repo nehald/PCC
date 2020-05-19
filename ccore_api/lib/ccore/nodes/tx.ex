@@ -3,6 +3,9 @@ defmodule Tx do
   require IEx
   # Client API
 
+  
+
+
   def tx_send(pid, msg) do
     GenServer.cast(pid, {:send, msg})
   end
@@ -14,34 +17,42 @@ defmodule Tx do
 
 
   def _join(socket_opts,topic) do 
+      IEx.pry  
       {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
       IEx.pry 
+     :timer.sleep(1000)
       {:ok, response, channel}=PhoenixClient.Channel.join(socket, topic)
  end
 
   # # Server Callbacks
   #
   def init(state) do
-    """
-      %{      
-      :current_user => "user:nehal.desaix@aero.org",
-       :user_id => #PID<0.589.0>,
-       :user_topic => "topic:user:nehal.desaix@aero.org",
-       "extra_channels" => ["topic:missileroom"],
-       "name" => "GOES 15",
-       "visible" => 0
-     }
-    """
+    #"""
+    #  %{      
+    #  :current_user => "user:nehal.desaix@aero.org",
+    #   :user_id => #PID<0.589.0>,
+    #   :user_topic => "topic:user:nehal.desaix@aero.org",
+    #   "extra_channels" => ["topic:missileroom"],
+    #   "name" => "GOES 15",
+    #   "visible" => 0
+    # }
+    #"""
+
 
     topics = [Map.get(state, :user_topic)] ++ Map.get(state, "extra_channels")
     name = Map.get(state, :name)
+    user_id = Map.get(state,:user_id)
+    user_id_list = :erlang.pid_to_list(user_id)
+    user_id_string = List.to_string(user_id_list)
+    state = Map.put(state,:user_id,user_id_string) 
+    {_,state_new} = Map.pop(state,"extra_channels")
 
     socket_opts = [
-      url: "ws://localhost:4000/socket/websocket"
+      url: "ws://localhost:4000/socket/websocket",
+      params: state_new
     ]
 
     ### subscribe to extra channels 
-    IEx.pry
     channel_list = Enum.map(topics, fn c -> _join(socket_opts, c) end)
 
     state = %{

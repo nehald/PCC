@@ -12,7 +12,6 @@ defmodule Generic do
 
   # # Server Callbacks
   def init(state) do
-    IEx.pry 
     {:ok, txpid} = Tx.start_link(state)
     state = Map.put(state, :txpid, txpid)
     {:ok, state}

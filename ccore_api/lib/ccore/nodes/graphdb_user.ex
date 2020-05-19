@@ -23,44 +23,27 @@ defmodule CCore.GraphDbUser do
     GenServer.call(pid, {:neighbors, vertex})
   end
 
+  def graph_into(pid) do
+     GenServer.call(pid,{:graph_info,[]})
+  end
 
   # # Server Callbacks
   #
   def init(init_arg) do
-    [gname, user_topic] = init_arg
-    socket_opts = [
-         url:  "ws://localhost:4000/socket/websocket"
-    ] 
-
-   ###
-   {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
-   :timer.sleep(1000)
-   IO.puts inspect Swarm.registered
-   {:ok, _response, channel} = PhoenixClient.Channel.join(socket,user_topic)
+    [graph_user, user_account] = init_arg
     state = %{
-      :socket => socket,
-      :channel => channel,
-      :name => gname,
+      :name => user_account, 
       :status => :up,
       :graph => Graph.new() 
     }
-   IEx.pry
-   IO.puts inspect(state)
    {:ok,state}  
    end
   #
-
-  def push(msg, state) do
-    channel = Map.get(state, :channel)
-    :ok = PhoenixClient.Channel.push_async(channel, "bcast", msg)
-    {:noreply, state}
-  end
 
   def handle_cast({:add_node, item}, state) do
     g = Map.get(state, :graph)
     next_g = Graph.add_vertex(g, item)
     msg = %{:key => "add_node", :value => item}
-    push(msg, state)
     next_state = Map.put(state, :graph, next_g)
     {:noreply, next_state}
   end
@@ -69,7 +52,6 @@ defmodule CCore.GraphDbUser do
     g = Map.get(state, :graph)
     next_g = Graph.add_vertex(g, item, label)
     msg = %{:key => "add_node", :value => item}
-    push(msg, state)
     next_state = Map.put(state, :graph, next_g)
     {:noreply, next_state}
   end
@@ -78,7 +60,6 @@ defmodule CCore.GraphDbUser do
     g = Map.get(state, :graph)
     next_g = Graph.add_edge(g, item_a, item_b)
     msg = %{:key => "add_edge", :value => %{:s => item_a, :e => item_b}}
-    push(msg, state)
     next_state = Map.put(state, :graph, next_g)
     {:noreply, next_state}
   end
@@ -89,10 +70,12 @@ defmodule CCore.GraphDbUser do
     {:reply, neighbors, state}
   end
 
-  def handle_cast({:info, _item}, state) do
-    IO.puts(inspect(state))
-    {:noreply, state}
+  def handle_call({:graph_info, _item}, _from,state) do
+    g = Map.get(state, :graph)
+    dot = Graph.to_dot(g)
+    {:reply,dot,state}
   end
+
 
   def handle_info(_msg, state) do
     {:noreply, state}

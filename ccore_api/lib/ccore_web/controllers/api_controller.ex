@@ -11,11 +11,11 @@ defmodule CCoreWeb.ApiController do
   end
 
   defp get_user_graph_id(user_id) do
-    "graphdb:" <> user_id
+    user_id<>":graphdb" 
   end
 
   defp get_user_topic_id(user_id) do
-    "topic:" <> user_id
+    user_id <>":topic"
   end
   
   @doc """
@@ -57,7 +57,7 @@ defmodule CCoreWeb.ApiController do
     #%{      
     #	:current_user => "user:nehal.desaix@aero.org",
     # 	:user_id => #PID<0.564.0>,
-    #	:user_topic => "topic:user:nehal.desaix@aero.org",
+    #	:user_topic => "user:nehal.desaix@aero.org:topic",
     #	"extra_channels" => ["topic:missileroom"],
     #	"name" => "GOES 15",
     #	"visible" => 0

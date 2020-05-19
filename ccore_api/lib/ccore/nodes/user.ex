@@ -12,7 +12,7 @@ defmodule CCore.User do
   def init(state) do
     ## start user channel 
     user_account = "user:" <> state.email
-    user_topic = "topic:" <> user_account
+    user_topic = user_account <> ":topic"
     params = %{:userid => state.email}
 
     socket_opts = [
@@ -28,10 +28,9 @@ defmodule CCore.User do
     Swarm.register_name(user_account, self())
     Swarm.register_name(user_topic, channel)
 
-    IEx.pry
     ### start graphdb.  register the graphdb and save it in the users state 
-    user_graph = "graphdb:" <> user_account
-    {:ok, graphdb_pid} = CCore.GraphDbUser.start_link([user_graph, user_topic])
+    user_graph = user_account <> ":graphdb"
+    {:ok, graphdb_pid} = CCore.GraphDbUser.start_link([user_graph, user_account])
     Swarm.register_name(user_graph, graphdb_pid)
     state = Map.put(state, :graphdb, graphdb_pid)
 

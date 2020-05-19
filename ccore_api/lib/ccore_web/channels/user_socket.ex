@@ -2,7 +2,7 @@ defmodule CCoreWeb.UserSocket do
   use Phoenix.Socket
   require IEx
   ## Channels
-  channel "topic:user:*", CCoreWeb.UserRoomChannel
+  channel "user:*", CCoreWeb.UserRoomChannel
   channel "graphroom", CCoreWeb.GraphRoomChannel
   channel "topic:missileroom", CCoreWeb.MissileRoomChannel
 
@@ -21,16 +21,22 @@ defmodule CCoreWeb.UserSocket do
   # performing token verification on connect.
 
   def connect(params, socket, connect_info) do
-    userid = Map.get(params,"userid")
-    IO.puts "********************"<> inspect params 
-    IO.puts "********************"<> inspect userid
-    case userid do 
+    #
+    # Parameters: %{"current_user" => "user:nehal.desaix@aero.org", "name" => "generic", 
+    # "proc_type" => "generic", "user_id" => "<0.594.0>", 
+    # "user_topic" => "user:nehal.desaix@aero.org:topic", "visible" => "0", "vsn" => "2.0.0"}
+
+    user_topic  = Map.get(params,"user_topic")
+    current_user  = Map.get(params,"current_user")
+    #calling_proc_name = params.name
+    case user_topic do 
     nil ->
        userid = "anonymous_"<>Integer.to_string(:rand.uniform(100000)) 
        socket = assign(socket,:userid,userid)
        {:ok,socket}
      _ ->
-       socket = assign(socket,:userid,userid)
+       socket = assign(socket,:user_topic,user_topic)
+       socket = assign(socket,:current_user,current_user)
        {:ok, socket}
   end
  end 
