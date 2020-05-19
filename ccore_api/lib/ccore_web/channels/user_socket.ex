@@ -26,13 +26,14 @@ defmodule CCoreWeb.UserSocket do
     # "proc_type" => "generic", "user_id" => "<0.594.0>", 
     # "user_topic" => "user:nehal.desaix@aero.org:topic", "visible" => "0", "vsn" => "2.0.0"}
 
+    IO.puts inspect params
     user_topic  = Map.get(params,"user_topic")
     current_user  = Map.get(params,"current_user")
-    #calling_proc_name = params.name
     case user_topic do 
     nil ->
        userid = "anonymous_"<>Integer.to_string(:rand.uniform(100000)) 
-       socket = assign(socket,:userid,userid)
+       socket = assign(socket,:current_user,userid)
+       socket = assign(socket,:user_topic,userid<>":topic")
        {:ok,socket}
      _ ->
        socket = assign(socket,:user_topic,user_topic)

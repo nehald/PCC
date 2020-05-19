@@ -65,15 +65,18 @@ defmodule CCoreWeb.ApiController do
 
     case type do  
     "sat" ->
-        IEx.pry
     	{:ok, pid} = Sat.start_link(params)
         Swarm.register_name(name, pid)
 	return_dict = %{"cmd" => "spawn", "name" => name}
         json(conn, return_dict)
 
      "generic" ->
-    	{:ok, pid} = Generic.start_link(params)
-	return_dict = %{"cmd" => "spawn", "name" => name}
+        {:ok, pid} = Generic.start_link(params)
+        IEx.pry
+        GenServer.cast(user_graph_id, {:add_edge,current_user,name})
+        Swarm.register_name(name,pid)
+        GenServer.cast(user_graph_id, {:add_node,name})
+  	return_dict = %{"cmd" => "spawn", "name" => name}
         json(conn, return_dict)
 
       _ ->

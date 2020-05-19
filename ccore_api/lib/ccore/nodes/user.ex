@@ -13,7 +13,7 @@ defmodule CCore.User do
     ## start user channel 
     user_account = "user:" <> state.email
     user_topic = user_account <> ":topic"
-    params = %{:userid => state.email}
+    params = %{"current_user" => user_account,"user_topic" => user_topic}
 
     socket_opts = [
       url: "ws://localhost:4000/socket/websocket",
