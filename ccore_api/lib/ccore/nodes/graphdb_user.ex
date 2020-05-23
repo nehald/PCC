@@ -23,20 +23,17 @@ defmodule CCore.GraphDbUser do
     GenServer.call(pid, {:neighbors, vertex})
   end
 
-  def graph_into(pid) do
+  def graph_info(pid) do
      GenServer.call(pid,{:graph_info,[]})
   end
 
   # # Server Callbacks
   #
-  def init(init_arg) do
-    [graph_user, user_account] = init_arg
-    state = %{
-      :name => user_account, 
-      :status => :up,
-      :graph => Graph.new() 
-    }
-   {:ok,state}  
+  def init(state) do
+    ###tx process requires 
+    {:ok,txpid} = Tx.start_link(state)
+    state_new=Map.put(state,:graph,Graph.new())
+    {:ok,state_new}  
    end
   #
 

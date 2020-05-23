@@ -29,6 +29,7 @@ defmodule CCoreWeb.UserSocket do
     IO.puts inspect params
     user_topic  = Map.get(params,"user_topic")
     current_user  = Map.get(params,"current_user")
+ 
     case user_topic do 
     nil ->
        userid = "anonymous_"<>Integer.to_string(:rand.uniform(100000)) 

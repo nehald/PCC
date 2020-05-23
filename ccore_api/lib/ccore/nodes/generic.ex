@@ -17,6 +17,7 @@ defmodule Generic do
   def init(state) do
     {:ok, txpid} = Tx.start_link(state)
     state = Map.put(state, :txpid, txpid)
+    IEx.pry 
     {:ok, state}
   end
 

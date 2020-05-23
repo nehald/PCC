@@ -13,7 +13,7 @@ defmodule CCore.User do
     ## start user channel 
     user_account = "user:" <> state.email
     user_topic = user_account <> ":topic"
-    params = %{"current_user" => user_account,"user_topic" => user_topic}
+    params = %{:current_user => user_account,:user_topic => user_topic}
 
     socket_opts = [
       url: "ws://localhost:4000/socket/websocket",
@@ -30,12 +30,13 @@ defmodule CCore.User do
 
     ### start graphdb.  register the graphdb and save it in the users state 
     user_graph = user_account <> ":graphdb"
-    {:ok, graphdb_pid} = CCore.GraphDbUser.start_link([user_graph, user_account])
+    {:ok, graphdb_pid} = CCore.GraphDbUser.start_link(params)
     Swarm.register_name(user_graph, graphdb_pid)
     state = Map.put(state, :graphdb, graphdb_pid)
 
-    ## create links in the graphdb 
-    graphdb_pid = Map.get(state, :graphdb)
+    ### create links in the graphdb 
+    #graphdb_pid = Map.get(state, :graphdb)
+  
     GenServer.cast(graphdb_pid, {:add_edge, user_account, user_topic})
     GenServer.cast(graphdb_pid, {:add_edge, user_account, user_graph})
 

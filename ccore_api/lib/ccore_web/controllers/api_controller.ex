@@ -47,6 +47,7 @@ defmodule CCoreWeb.ApiController do
 
     params = Map.put(params, :current_user, current_user)
     params = Map.put(params, :user_id, user_id)
+    params = Map.put(params, :user_graph_id, user_graph_id)
     params = Map.put(params, :user_topic, user_topic_id)
   
     ## info that cames in from the curl 
@@ -72,7 +73,6 @@ defmodule CCoreWeb.ApiController do
 
      "generic" ->
         {:ok, pid} = Generic.start_link(params)
-        IEx.pry
         GenServer.cast(user_graph_id, {:add_edge,current_user,name})
         Swarm.register_name(name,pid)
         GenServer.cast(user_graph_id, {:add_node,name})
@@ -86,13 +86,21 @@ defmodule CCoreWeb.ApiController do
      # Swarm.register_name(name, satpid)
   end
 
-  def get_graph(conn, params) do
-    current_user_id = get_session(conn, :current_user_id)
-    ## lookup graphdb
-    ## 1.  find user process 
-    user_account_pid = Swarm.whereis_name(current_user_id)
-    {:ok, graphdb} = GenServer.cast(user_account_pid, :get_graph)
-  end
+  def graph(conn,params) do
+      current_user =
+      conn
+      |> get_session(:current_user_id)
+      |> get_user_id
+
+    user_graph_pid =
+      current_user
+      |> get_user_graph_id
+      |> Swarm.whereis_name()
+
+   dotfile = GenServer.call(user_graph_pid,{:graph_info,[]})
+
+  end 
+
 
   def swarm_info(conn, params) do
     key = Map.get(params, "key")
