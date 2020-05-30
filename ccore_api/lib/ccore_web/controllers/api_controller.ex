@@ -52,8 +52,7 @@ defmodule CCoreWeb.ApiController do
   
     ## info that cames in from the curl 
     type = Map.get(params,"proc_type")
-    name = Map.get(params, "name")
-    
+    proc_name = current_user<>":"<>Map.get(params, "name")
     #> params  
     #%{      
     #	:current_user => "user:nehal.desaix@aero.org",
@@ -67,20 +66,20 @@ defmodule CCoreWeb.ApiController do
     case type do  
     "sat" ->
     	{:ok, pid} = Sat.start_link(params)
-        Swarm.register_name(name, pid)
-	return_dict = %{"cmd" => "spawn", "name" => name}
+        Swarm.register_name(proc_name, pid)
+	return_dict = %{"cmd" => "spawn", "name" => proc_name}
         json(conn, return_dict)
 
      "generic" ->
+        IEx.pry 
         {:ok, pid} = Generic.start_link(params)
-        GenServer.cast(user_graph_id, {:add_edge,current_user,name})
-        Swarm.register_name(name,pid)
-        GenServer.cast(user_graph_id, {:add_node,name})
-  	return_dict = %{"cmd" => "spawn", "name" => name}
+        GenServer.cast(user_graph_id, {:add_edge,current_user,proc_name})
+        Swarm.register_name(proc_name,pid)
+	return_dict = %{"cmd" => "spawn", "name" => proc_name}
         json(conn, return_dict)
 
       _ ->
-    	return_dict = %{"cmd" => type, "name" => name}
+    	return_dict = %{"cmd" => type, "name" => proc_name}
         json(conn, return_dict)
      end   
      # Swarm.register_name(name, satpid)
@@ -98,8 +97,12 @@ defmodule CCoreWeb.ApiController do
       |> Swarm.whereis_name()
 
    dotfile = GenServer.call(user_graph_pid,{:graph_info,[]})
-
+   IEx.pry 
+   return_dict = %{"dotfile"=>dotfile} 
+   json(conn, return_dict)
   end 
+
+
 
 
   def swarm_info(conn, params) do

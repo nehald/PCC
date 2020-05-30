@@ -15,9 +15,19 @@ defmodule Generic do
 
   # # Server Callbacks
   def init(state) do
+    #%{      
+    #:current_user => "user:nehal.desaix@aero.org",
+    #:user_graph_id => #PID<0.609.0>,
+    #:user_id => #PID<0.601.0>,
+    #:user_topic => "user:nehal.desaix@aero.org:topic",
+    #"extra_channels" => [],
+    #"name" => "generic3",
+    #"proc_type" => "generic",
+    # "visible" => 0
+    # }
+    
     {:ok, txpid} = Tx.start_link(state)
     state = Map.put(state, :txpid, txpid)
-    IEx.pry 
     {:ok, state}
   end
 

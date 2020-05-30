@@ -31,7 +31,9 @@ defmodule CCore.GraphDbUser do
   #
   def init(state) do
     ###tx process requires 
-    {:ok,txpid} = Tx.start_link(state)
+    ##
+    state = Map.put(state,"name","graphdb")   
+    #{:ok,txpid} = Tx.start_link(state)
     state_new=Map.put(state,:graph,Graph.new())
     {:ok,state_new}  
    end

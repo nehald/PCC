@@ -30,6 +30,12 @@ defmodule CCore.User do
 
     ### start graphdb.  register the graphdb and save it in the users state 
     user_graph = user_account <> ":graphdb"
+    # params = %{      
+    #   current_user: "user:nehal.desaix@aero.org",
+    #   user_topic: "user:nehal.desaix@aero.org:topic"
+    #}
+
+
     {:ok, graphdb_pid} = CCore.GraphDbUser.start_link(params)
     Swarm.register_name(user_graph, graphdb_pid)
     state = Map.put(state, :graphdb, graphdb_pid)

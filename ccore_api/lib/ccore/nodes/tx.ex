@@ -14,9 +14,9 @@ defmodule Tx do
 
   def pid_to_string(pid) do
     pid_list = :erlang.pid_to_list(pid)
-    pid_string = List.to_string(pid_list) 
+    pid_string = List.to_string(pid_list)
     pid_string
- end
+  end
 
   def string_to_pid(pidstr) do
     pid_list = String.to_charlist(pidstr)
@@ -32,94 +32,85 @@ defmodule Tx do
     channel_sent = Enum.map(channel_list, fn c -> _bcast(c, msg) end)
   end
 
-  def _join(socket_opts, topic) do
+  def join_topic(current_user, topic, tx_name,graphdb_pid) do
+    params=%{:current_user=> current_user,:user_topic => topic}
+    socket_opts = [
+      url: "ws://localhost:4000/socket/websocket",
+      params: params
+    ] 
+    
+    IEx.pry 
     {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
     :timer.sleep(1000)
     {:ok, response, channel} = PhoenixClient.Channel.join(socket, topic)
     {:ok, channel, topic}
+
+
+    ## after connect is set call graphpid 
+    GenServer.cast(graphdb_pid, {:add_edge, tx_name, topic})  
+
   end
 
   def has_extra_channels(state) do
-    ec= Map.get(state,"extra_channels")
-    case ec do 
-    nil ->
-	[]
-    value ->
+    ec = Map.get(state, "extra_channels")
+
+    case ec do
+      nil ->
+        []
+
+      value ->
         ec
-    end 
-   end   
+    end
+  end
 
   ## Server Callbacks
-  #
   def init(state) do
-    # """
-    #  %{      
-    #  :current_user => "user:nehal.desaix@aero.org",
-    #   :user_id => #PID<0.589.0>,
-    #   :user_topic => "topic:user:nehal.desaix@aero.org",
-    #   "extra_channels" => ["topic:missileroom"],
-    #   "name" => "GOES 15",
-    #   "visible" => 0
+    # %{      
+    # :current_user => "user:nehal.desaix@aero.org",
+    # :user_graph_id => #PID<0.609.0>,
+    # :user_id => #PID<0.601.0>,
+    # :user_topic => "user:nehal.desaix@aero.org:topic",
+    # "extra_channels" => [],
+    # "name" => "generic3",
+    # "proc_type" => "generic",
+    # "visible" => 0
     # }
-    # """
+
     topics = [Map.get(state, :user_topic)] ++ has_extra_channels(state)
-    
-    name = Map.get(state, :name)
-    
-    ###  remove pid .. because pids don't serialize
-    {_, state_new} = Map.pop(state, "extra_channels")
-    {_, state_new} = Map.pop(state_new, :user_id)
-    {_, state_new} = Map.pop(state_new, :user_graph_id)
-   
-    socket_opts = [
-      url: "ws://localhost:4000/socket/websocket",
-      params: state_new
-    ]
 
+    name = Map.get(state, "name")
+
+    ## this is the "name" of this tx process
+    ## current_user_name + process_name + "_tx" 
+    tx_name = state.current_user <> ":" <> name <> "_tx"
+    graphdb_pid=state.user_graph_id
+    current_user = state.current_user
     ### subscribe to extra channels 
-    channel_list = Enum.map(topics, fn c -> _join(socket_opts, c) end)
+    
+   channel_list = Enum.map(topics, fn topic -> join_topic(current_user,topic,tx_name, graphdb_pid) end)
 
-    state = %{
-      :current_user => Map.get(state,:current_user), 
-      :socket => socket_opts,
-      :channel_list => channel_list,
-      :name => name,
-      :status => :up
-    }
-    IEx.pry 
-#   channel_list: [{:ok, #PID<0.612.0>, "user:nehal.desaix@aero.org:topic"}],
-#   current_user: "user:nehal.desaix@aero.org",
-#   name: nil,
-#   socket: [
-#      url: "ws://localhost:4000/socket/websocket",
-#      params: %{
-#         current_user: "user:nehal.desaix@aero.org",
-#         user_topic: "user:nehal.desaix@aero.org:topic"
-#     }
-#   ],
-#  status: :up
-#  }
+   state = Map.put(state,:channel_list,channel_list) 
+    
     {:ok, state}
   end
 
-  def handle_info(%PhoenixClient.Message{} = msg,state) do
+  def handle_info(%PhoenixClient.Message{} = msg, state) do
     {:noreply, state}
   end
 
-  def handle_info(msg,state) do
-    IO.puts inspect msg
-    {:noreply,state}
-  end 
+  def handle_info(msg, state) do
+    IO.puts(inspect(msg))
+    {:noreply, state}
+  end
 
-  def handle_cast({:add_channel,channel_name},state) do
-  state =  
-   socket_opts = [
+  def handle_cast({:add_channel, channel_name}, state) do
+    IEx.pry()
+
+    socket_opts = [
       url: "ws://localhost:4000/socket/websocket",
-      params: state 
+      params: state
     ]
-     
- 
-  end 
+  end
 
   ## the msg is the full packet
   def handle_cast({:test, _}, state) do
@@ -133,7 +124,7 @@ defmodule Tx do
     {:noreply, state}
   end
 
-  def handle_call({:send,msg}, _from, state) do
+  def handle_call({:send, msg}, _from, state) do
     channel_list = Map.get(state, :channel_list)
     sent = bcast(channel_list, msg)
     {:reply, sent, state}
