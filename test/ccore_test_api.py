@@ -5,7 +5,6 @@
 import pdb
 import requests
 
-
 URL = "http://localhost:4000/api/"
 headers = {"Content-Type": "application/json"}
 
@@ -41,7 +40,7 @@ def sign_in(email, password):
     return cookiejar
 
 
-def spawn_proc(cookie_jar,proc_type, name, extra_channels, visible):
+def spawn_proc(cookie_jar, proc_type, name, extra_channels, visible):
     """Spawn a process
     Arguments:
        cookiejar  - user session id
@@ -68,15 +67,26 @@ def spawn_proc(cookie_jar,proc_type, name, extra_channels, visible):
         return {"Error": e_e}
 
 
-def connect_procs(proc_a, proc_b):
-    """ Connect two procs"""
-    return "Foo"
+def graph_info(cookiejar):
+    """ Get the user graph
+       cookiejar  - session id
+    """
+    url_graph = URL + "graph"
+    info_data = {"info": "graph"}
+    try:
+        response = requests.post(url_graph,
+                                 headers=headers,
+                                 json=info_data,
+                                 cookie=cookiejar)
+        return response
+    except:
+        return {"Error": "info"}
 
 
 user_cookie = sign_in("nehal.desaix@aero.org", "foobar")
-spawn_handle = spawn_proc(user_cookie,"generic",  "generic", [],0)
-
-
+print(user_cookie)
+spawn_handle = spawn_proc(user_cookie, "generic", "generic3", [], 0)
+#r = graph_info(user_cookie)
 # spawn(cookie)
 #
 # print(cookie)
