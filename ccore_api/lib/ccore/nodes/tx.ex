@@ -39,7 +39,6 @@ defmodule Tx do
       params: params
     ] 
     
-    IEx.pry 
     {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
     :timer.sleep(1000)
     {:ok, response, channel} = PhoenixClient.Channel.join(socket, topic)
