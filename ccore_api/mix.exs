@@ -20,7 +20,7 @@ defmodule CCore.MixProject do
   def application do
     [
       mod: {CCore.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools,:event_bus]
     ]
   end
 
@@ -50,7 +50,8 @@ defmodule CCore.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"}, 
+      {:event_bus, "~> 1.6"} 
     ]
   end
 

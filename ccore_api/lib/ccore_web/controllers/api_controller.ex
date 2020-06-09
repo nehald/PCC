@@ -71,7 +71,6 @@ defmodule CCoreWeb.ApiController do
         json(conn, return_dict)
 
      "generic" ->
-        IEx.pry 
         {:ok, pid} = Generic.start_link(params)
         GenServer.cast(user_graph_id, {:add_edge,current_user,proc_name})
         Swarm.register_name(proc_name,pid)
