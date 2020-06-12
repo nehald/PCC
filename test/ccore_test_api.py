@@ -2,9 +2,7 @@
     test for PCC apis
 """
 
-import pdb
 import requests
-
 URL = "http://localhost:4000/api/"
 headers = {"Content-Type": "application/json"}
 
@@ -83,9 +81,26 @@ def graph_info(cookiejar):
         return {"Error": "info"}
 
 
+def start_groundstation(cookiejar):
+    """
+      start a groundstation
+    """
+    url_graph = URL + "groundstation"
+    info_data = {"loc": [1, 3]}
+    try:
+        response = requests.post(url_graph,
+                                 headers=headers,
+                                 json=info_data,
+                                 cookie=cookiejar)
+        return response
+    except:
+        return {"Error": "Cant start groundstation"}
+
+
 user_cookie = sign_in("nehal.desaix@aero.org", "foobar")
 print(user_cookie)
-spawn_handle = spawn_proc(user_cookie, "generic", "generic3", [], 0)
+spawn_handle = spawn_proc(user_cookie, "generic", "45555", [], 0)
+
 #r = graph_info(user_cookie)
 # spawn(cookie)
 #
