@@ -19,7 +19,7 @@ defmodule CCore.GraphDbUserEvents do
     event_topic = Map.get(state,:event_topic)
     Events.register_topic(event_topic)
     Events.subscribe({__MODULE__, [event_topic]})
-    {:ok,state_new}  
+    {:ok,state}  
    end
 
 

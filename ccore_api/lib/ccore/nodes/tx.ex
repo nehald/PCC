@@ -103,7 +103,6 @@ defmodule Tx do
   end
 
   def handle_cast({:add_channel, channel_name}, state) do
-    IEx.pry()
 
     socket_opts = [
       url: "ws://localhost:4000/socket/websocket",

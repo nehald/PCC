@@ -35,13 +35,12 @@ defmodule CCore.User do
     #   user_topic: "user:nehal.desaix@aero.org:topic"
     #}
 
-    {:ok, graphdb_pid} = CCore.GraphDbUserEvents.start_link(params)
+    {:ok, graphdb_pid} = CCore.GraphDbUser.start_link(params)
     Swarm.register_name(user_graph, graphdb_pid)
     state = Map.put(state, :graphdb, graphdb_pid)
 
     ### create links in the graphdb 
     #graphdb_pid = Map.get(state, :graphdb)
-  
     GenServer.cast(graphdb_pid, {:add_edge, user_account, user_topic})
     GenServer.cast(graphdb_pid, {:add_edge, user_account, user_graph})
 
