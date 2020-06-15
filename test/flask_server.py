@@ -2,11 +2,11 @@ import json
 from flask import Flask
 import sat_utils
 
-app = Flask(__name__)
-app.config["DBB_URL"] = "redis://localhost:6379/0"
+application = Flask(__name__)
+application.config["DBB_URL"] = "redis://localhost:6379/0"
 
 
-@app.route('/')
+@application.route('/')
 def index():
     """
     Index
@@ -14,7 +14,7 @@ def index():
     return "index"
 
 
-@app.route('/sat/update_tle_db')
+@application.route('/sat/update_tle_db')
 def update_tle_db():
     """
      Updating the TLE database using the Celestrak date
@@ -25,7 +25,7 @@ def update_tle_db():
     return json.dumps({"time": timestamp, "return": return_str})
 
 
-@app.route("/sat/position/<satid>")
+@application.route("/sat/position/<satid>")
 def sat_position_eci(satid):
     """
      Get the position of the satellite
@@ -43,4 +43,4 @@ def sat_position_eci(satid):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    application.run(debug=True)

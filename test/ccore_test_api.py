@@ -1,7 +1,7 @@
 """
     test for PCC apis
 """
-
+import pdb
 import requests
 URL = "http://localhost:4000/api/"
 headers = {"Content-Type": "application/json"}
@@ -81,27 +81,71 @@ def graph_info(cookiejar):
         return {"Error": "info"}
 
 
-def start_groundstation(cookiejar):
+def spawn_groundstation(cookie_jar, name, loc=[0, 0]):
     """
       start a groundstation
     """
-    url_graph = URL + "groundstation"
-    info_data = {"loc": [1, 3]}
+    url_spawn = URL + "spawn"
+    spawn_data = {"name": name, "loc": loc, "proc_type": "groundstation"}
     try:
-        response = requests.post(url_graph,
+        response = requests.post(url_spawn,
                                  headers=headers,
-                                 json=info_data,
-                                 cookie=cookiejar)
+                                 json=spawn_data,
+                                 cookies=cookie_jar)
         return response
-    except:
-        return {"Error": "Cant start groundstation"}
+    except requests.exceptions.RequestException as e_e:
+        return {"Error": e_e}
+
+
+def gs_connect(cookie_jar, groundstation=None, sat=None):
+    """
+     connect a ground station to a satellite
+    """
+
+    url_connect = URL+"gs/connect"
+    if groundstation is None or sat is None:
+        return {"Error": "groundstation or sat not specified"}
+
+    # connection
+    connect_data = {"gs": groundstation, "sat": sat}
+    try:
+        response = requests.post(url_connect,
+                                 headers=headers,
+                                 json=connect_data,
+                                 cookies=cookie_jar)
+        return response
+    except requests.exceptions.RequestException as e_e:
+        return {"Error": e_e}
+
+
+def gs_connection_info(cookie_jar, groundstation=None):
+    url_gs = URL+"gs/info"
+    if groundstation is None:
+        return {"Error": "groundstation or sat not specified"}
+
+    info = {"gs": groundstation}
+    try:
+        response = requests.post(url_gs,
+                                 headers=headers,
+                                 json=info,
+                                 cookies=cookie_jar,timeout=None)
+        return response
+    except requests.exceptions.RequestException as e_e:
+        return {"Error": e_e}
 
 
 user_cookie = sign_in("nehal.desaix@aero.org", "foobar")
-print(user_cookie)
-spawn_handle = spawn_proc(user_cookie, "generic", "45555", [], 0)
-
-#r = graph_info(user_cookie)
+# print(user_cookie)
+# pdb.set_trace()
+spawn_handle_45555 = spawn_proc(user_cookie, "generic", "45555", [], 0)
+spawn_handle_45394 = spawn_proc(user_cookie, "generic", "45394", [], 0)
+gs_handle = spawn_groundstation(user_cookie, "gs2", loc=[1, 1])
+gs_connect(user_cookie, "gs2", "45555")
+gs_connect(user_cookie, "gs2", "45394")
+response= gs_connection_info(user_cookie,"gs2")
+pdb.set_trace()
+print (response)
+# r = graph_info(user_cookie)
 # spawn(cookie)
 #
 # print(cookie)

@@ -11,17 +11,17 @@ defmodule CCoreWeb.ApiController do
   end
 
   defp get_user_graph_id(user_id) do
-    user_id<>":graphdb" 
+    user_id <> ":graphdb"
   end
 
   defp get_user_topic_id(user_id) do
-    user_id <>":topic"
+    user_id <> ":topic"
   end
-  
-  @doc """
-    Spawns the node  
 
-   """
+  @doc """
+   Spawns the node  
+
+  """
   def spawn(conn, params) do
     ## get the userid  
     current_user =
@@ -42,50 +42,92 @@ defmodule CCoreWeb.ApiController do
     user_topic_id =
       current_user
       |> get_user_topic_id
-#      |> Swarm.whereis_name()
-
 
     params = Map.put(params, :current_user, current_user)
     params = Map.put(params, :user_id, user_id)
     params = Map.put(params, :user_graph_id, user_graph_id)
     params = Map.put(params, :user_topic, user_topic_id)
-  
-    ## info that cames in from the curl 
-    type = Map.get(params,"proc_type")
-    proc_name = current_user<>":"<>Map.get(params, "name")
-    #> params  
-    #%{      
-    #	:current_user => "user:nehal.desaix@aero.org",
-    # 	:user_id => #PID<0.564.0>,
-    #	:user_topic => "user:nehal.desaix@aero.org:topic",
-    #	"extra_channels" => ["topic:missileroom"],
-    #	"name" => "GOES 15",
-    #	"visible" => 0
-    #}
 
-    case type do  
-    "sat" ->
-    	{:ok, pid} = Sat.start_link(params)
+    ## info that cames in from the curl 
+    type = Map.get(params, "proc_type")
+    proc_name = current_user <> ":proc:" <> Map.get(params, "name")
+    # > params  
+    # %{      
+    # 	:current_user => "user:nehal.desaix@aero.org",
+    # 	:user_id => #PID<0.564.0>,
+    # 	:user_topic => "user:nehal.desaix@aero.org:topic",
+    # 	"extra_channels" => ["topic:missileroom"],
+    # 	"name" => "GOES 15",
+    # 	"visible" => 0
+    # }
+    case type do
+      "sat" ->
+        {:ok, pid} = Sat.start_link(params)
         Swarm.register_name(proc_name, pid)
-	return_dict = %{"cmd" => "spawn", "name" => proc_name}
+        return_dict = %{"cmd" => "spawn", "name" => proc_name}
         json(conn, return_dict)
 
-     "generic" ->
+      "generic" ->
         {:ok, pid} = Generic.start_link(params)
-        GenServer.cast(user_graph_id, {:add_edge,current_user,proc_name})
-        Swarm.register_name(proc_name,pid)
-	return_dict = %{"cmd" => "spawn", "name" => proc_name}
+        GenServer.cast(user_graph_id, {:add_edge, current_user, proc_name})
+        Swarm.register_name(proc_name, pid)
+        return_dict = %{"cmd" => "spawn", "name" => proc_name}
+        json(conn, return_dict)
+
+      "groundstation" ->
+        {:ok, pid} = Groundstation.start_link(params)
+        Swarm.register_name(proc_name, pid)
+        return_dict = %{"cmd" => "spawn", "name" => proc_name}
         json(conn, return_dict)
 
       _ ->
-    	return_dict = %{"cmd" => type, "name" => proc_name}
+        return_dict = %{"cmd" => type, "name" => proc_name}
         json(conn, return_dict)
-     end   
-     # Swarm.register_name(name, satpid)
+    end
+
+    # Swarm.register_name(name, satpid)
   end
 
-  def graph(conn,params) do
-      current_user =
+  def gs_connect(conn, params) do
+    current_user =
+      conn
+      |> get_session(:current_user_id)
+      |> get_user_id
+
+    gs_proc_name = current_user <> ":proc:" <> Map.get(params, "gs")
+    groundstation_pid =
+      gs_proc_name
+      |> Swarm.whereis_name()
+
+    ### --- sat pid  
+    sat_proc_name = current_user <> ":proc:" <> Map.get(params, "sat")
+    sat_pid =
+      sat_proc_name
+      |> Swarm.whereis_name()
+
+    state = GenServer.call(groundstation_pid, {:add_connection, sat_pid})
+    return_dict = %{"cmd" => "gs_to_sat", "gs" => gs_proc_name,"sat"=> sat_proc_name}
+    #eturn_dict = %{"cmd" => "gs_to_sat","gs" => gs_proc_name}
+    #return_dict=%{} 
+    json(conn, return_dict)
+  end
+
+
+  def gs_info(conn, params) do
+    current_user = 
+        conn
+      |> get_session(:current_user_id)
+      |> get_user_id
+
+    gs_proc_name = current_user <> ":proc:" <> Map.get(params, "gs")
+    groundstation_pid =
+      gs_proc_name
+      |> Swarm.whereis_name()
+
+  end   
+
+  def graph(conn, params) do
+    current_user =
       conn
       |> get_session(:current_user_id)
       |> get_user_id
@@ -95,14 +137,10 @@ defmodule CCoreWeb.ApiController do
       |> get_user_graph_id
       |> Swarm.whereis_name()
 
-   dotfile = GenServer.call(user_graph_pid,{:graph_info,[]})
-   IEx.pry 
-   return_dict = %{"dotfile"=>dotfile} 
-   json(conn, return_dict)
-  end 
-
-
-
+    dotfile = GenServer.call(user_graph_pid, {:graph_info, []})
+    return_dict = %{"dotfile" => dotfile}
+    json(conn, return_dict)
+  end
 
   def swarm_info(conn, params) do
     key = Map.get(params, "key")
@@ -111,7 +149,6 @@ defmodule CCoreWeb.ApiController do
     case key do
       "registered" ->
         retval = Swarm.registered()
-        IEx.pry()
         json(conn, retval)
 
       "whereis" ->
@@ -136,36 +173,11 @@ defmodule CCoreWeb.ApiController do
         msg_str = "No sat name" <> sat_name
         msg = %{:msg => msg_str}
         json(conn, msg)
-
       _ ->
         {:ok, val} = GenServer.call(sat_pid, {:status, system})
         msg = %{"name" => sat_name, "system" => system, "status" => val}
-        IO.puts("val" <> inspect(msg))
         json(conn, msg)
     end
-  end
+ end
 
-  def missile_traj(conn, params) do
-    missile_name = Map.get(params, "missile_name")
-    cmd = Map.get(params, "cmd")
-
-    case cmd do
-      "launch" ->
-        {:ok, missile_pid} = MissileLauncher.start_link(missile_name)
-        IEx.pry()
-        Swarm.register_name(missile_name, missile_pid)
-        return_dict = %{"cmd" => "launched", "name" => missile_name}
-        json(conn, return_dict)
-
-      "add_position" ->
-        missile_pid = Swarm.whereis_name(missile_name)
-        position = Map.get(params, "position")
-        GenServer.cast(missile_pid, {:add_position, position})
-        return_dict = %{"cmd" => "adding_position", "pos" => position}
-        json(conn, return_dict)
-
-      _ ->
-        nil
-    end
-  end
 end
