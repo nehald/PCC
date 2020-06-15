@@ -32,13 +32,14 @@ defmodule Generic do
     {:ok, satprop} = SatPos.start_link(%{:name => name})
     state = Map.put(state, :txpid, txpid)
     state = Map.put(state, :satprop, satprop)
+    
+
     ## put into graphdb
     {:ok, state}
   end
 
   def handle_call(:info, _from, state) do
     ## forward info request other procs 
-    IEx.pry()
     satprop = Map.get(state, :satprop)
     return = GenServer.call(satprop, :info)
     {:replay, return, state}

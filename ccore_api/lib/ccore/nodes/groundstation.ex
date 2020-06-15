@@ -24,36 +24,63 @@ defmodule Groundstation do
     # "proc_type" => "groundstation",
     # }
 
-    state = Map.put(state,:connections,[])
-    
+    state = Map.put(state, :connections, [])
+
     {:ok, state}
   end
 
   def handle_call({:add_connection, pid}, _from, state) do
     conns = Map.get(state, :connections)
-    new_conns = conns++[pid]
+    new_conns = conns ++ [pid]
     new_state = Map.put(state, :connections, new_conns)
     {:reply, new_state, new_state}
   end
 
-  def send_info(pid) do 
-       GenServer.call(pid,:info)  
+  def _sat_info(pid) do
+    GenServer.call(pid, :info)
+  end
 
-  end 
-  def handle_call({:send,msg},_from,state) do 
-    connections = Map.get(state,:connections)
-    num_connection = Enum.count(connections) 
+  defp _send_info(c) do
+    GenServer.call(c, :getstate)
+  end
+
+  defp get_sat_info(state) do
+    connections = Map.get(state, :connections)
+    num_connection = Enum.count(connections)
+
     cond do
-      num_connection > 0 -> 
-          case msg do 
-            "info" ->
-                   Enum.map(connections, fn c -> send_info(c) end)  
-          end 
-      end 
-   end
+      num_connection > 0 ->
+            Enum.map(connections, fn c -> _send_info(c) end)
+    end
+  end
 
-  def handle_call(msg, _from,state) do
-    IO.puts(inspect(state))
+
+  defp get_connection_info(state) do
+    connections = Map.get(state, :connections)
+    r_swarm = Map.new(Swarm.registered, fn {key,val} -> {val,key} end) 
+    connection_name = Enum.map(connections, fn c -> Map.get(r_swarm,c) end)
+    connection_name
+  end
+
+   
+  def handle_call({:info, msg}, _from, state) do
+    case msg do
+      "sat_info" ->
+        get_sat_info(state)
+
+      "connection_info" ->
+        c = get_connection_info(state)
+        unique_c = Enum.uniq(c) 
+        {:reply,unique_c,state}
+      _ ->
+        IO.puts("msg = " <> msg)
+        {:noreply,state}
+    end
+   end
+  
+
+   def handle_call(msg, _from, state) do
+    IO.puts(inspect(msg))
     {:noreply, state}
   end
 end

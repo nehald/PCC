@@ -15,6 +15,8 @@ defmodule CCoreWeb.Router do
     resources "/users", UserController, except: [:create,:new, :edit]
     post "/spawn",ApiController,:spawn
     post "/graph",ApiController,:get_graph 
+    post "/gs/connect",ApiController,:gs_connect
+    post "/gs/info",ApiController,:gs_info
   end
  
   scope "/api", CCoreWeb do 
