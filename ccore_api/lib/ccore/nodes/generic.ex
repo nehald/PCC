@@ -41,6 +41,7 @@ defmodule Generic do
   def handle_call(:info, _from, state) do
     ## forward info request other procs 
     satprop = Map.get(state, :satprop)
+    IEx.pry
     return = GenServer.call(satprop, :info)
     {:replay, return, state}
   end

@@ -95,36 +95,54 @@ defmodule CCoreWeb.ApiController do
       |> get_user_id
 
     gs_proc_name = current_user <> ":proc:" <> Map.get(params, "gs")
+
     groundstation_pid =
       gs_proc_name
       |> Swarm.whereis_name()
 
     sat_proc_name = current_user <> ":proc:" <> Map.get(params, "sat")
+
     sat_pid =
       sat_proc_name
       |> Swarm.whereis_name()
 
     state = GenServer.call(groundstation_pid, {:add_connection, sat_pid})
-    return_dict = %{"cmd" => "gs_to_sat", "gs" => gs_proc_name,"sat"=> sat_proc_name}
+    return_dict = %{"cmd" => "gs_to_sat", "gs" => gs_proc_name, "sat" => sat_proc_name}
     json(conn, return_dict)
   end
 
-
   def gs_info(conn, params) do
-    current_user = 
-        conn
+    current_user =
+      conn
       |> get_session(:current_user_id)
       |> get_user_id
 
     gs_proc_name = current_user <> ":proc:" <> Map.get(params, "gs")
+
     groundstation_pid =
       gs_proc_name
       |> Swarm.whereis_name()
-    
+
     m = GenServer.call(groundstation_pid, {:info, "connection_info"})
-    IO.puts  m
-    json(conn,m)    
-  end   
+    IO.puts(m)
+    json(conn, m)
+  end
+
+  def gs_sat_info(conn, params) do
+    current_user =
+      conn
+      |> get_session(:current_user_id)
+      |> get_user_id
+
+    gs_proc_name = current_user <> ":proc:" <> Map.get(params, "gs")
+
+    groundstation_pid =
+      gs_proc_name
+      |> Swarm.whereis_name()
+
+    m = GenServer.call(groundstation_pid, {:info, "sat_info"})
+    json(conn, m)
+  end
 
   def graph(conn, params) do
     current_user =
@@ -173,11 +191,11 @@ defmodule CCoreWeb.ApiController do
         msg_str = "No sat name" <> sat_name
         msg = %{:msg => msg_str}
         json(conn, msg)
+
       _ ->
         {:ok, val} = GenServer.call(sat_pid, {:status, system})
         msg = %{"name" => sat_name, "system" => system, "status" => val}
         json(conn, msg)
     end
- end
-
+  end
 end

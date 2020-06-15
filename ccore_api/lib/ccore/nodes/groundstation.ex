@@ -37,21 +37,15 @@ defmodule Groundstation do
   end
 
   def _sat_info(pid) do
-    GenServer.call(pid, :info)
+     IEx.pry 
+     GenServer.call(pid, :info)
   end
 
-  defp _send_info(c) do
-    GenServer.call(c, :getstate)
-  end
 
   defp get_sat_info(state) do
     connections = Map.get(state, :connections)
     num_connection = Enum.count(connections)
-
-    cond do
-      num_connection > 0 ->
-            Enum.map(connections, fn c -> _send_info(c) end)
-    end
+    info_list=Enum.map(connections, fn c -> _sat_info(c) end)
   end
 
 
