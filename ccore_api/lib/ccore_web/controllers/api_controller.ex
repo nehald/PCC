@@ -154,16 +154,18 @@ defmodule CCoreWeb.ApiController do
 
    @doc """
     Get info about a sat directly
+    generic(:sat_info) -> satprop(:info) 
+
    """
    def sat_info(conn,params) do 
     current_user =
       conn
       |> get_session(:current_user_id)
       |> get_user_id
-
-    sat_name = Map.get(params,:sat_handle)
+    sat_name = Map.get(params,"sat_handle")
     sat_pid = sat_name |> Swarm.whereis_name 
-    info = GenServer.call(sat_pid,:info)    
+    info = GenServer.call(sat_pid,:sat_info)    
+    json(conn,info) 
    end  
           
 
