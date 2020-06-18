@@ -17,7 +17,8 @@ defmodule CCoreWeb.Router do
     post "/graph",ApiController,:get_graph 
     post "/gs/connect",ApiController,:gs_connect
     post "/gs/info",ApiController,:gs_info
-    post "/gs/sat_info",ApiController,:gs_sat_info
+    post "/gs/info/sat",ApiController,:gs_sat_info
+    post "/sat",ApiController,:sat
   end
  
   scope "/api", CCoreWeb do 

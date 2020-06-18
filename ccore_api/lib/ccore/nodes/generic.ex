@@ -38,12 +38,13 @@ defmodule Generic do
     {:ok, state}
   end
 
-  def handle_call(:info, _from, state) do
+  def handle_call(:sat_info, _from, state) do
     ## forward info request other procs 
-    satprop = Map.get(state, :satprop)
-    IEx.pry
-    return = GenServer.call(satprop, :info)
-    {:replay, return, state}
+    satprop_pid = Map.get(state, :satprop)
+    sat_state = GenServer.call(satprop_pid, :info)
+    IO.puts "*****************************************"
+    IO.puts inspect(sat_state) 
+    {:reply, sat_state, state}
   end
 
   def handle_cast(msg, state) do

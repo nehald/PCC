@@ -9,7 +9,7 @@ defmodule Groundstation do
   def start_link(args) do
     name = Map.get(args, "name")
     arg = %{:connections => []}
-    GenServer.start_link(__MODULE__, args, [name])
+    GenServer.start_link(__MODULE__, args)
   end
 
   # # Server Callbacks
@@ -31,14 +31,15 @@ defmodule Groundstation do
 
   def handle_call({:add_connection, pid}, _from, state) do
     conns = Map.get(state, :connections)
+     
     new_conns = conns ++ [pid]
     new_state = Map.put(state, :connections, new_conns)
     {:reply, new_state, new_state}
   end
 
   def _sat_info(pid) do
-     IEx.pry 
-     GenServer.call(pid, :info)
+     satpos = GenServer.call(pid, :sat_info)
+     satpos 
   end
 
 
@@ -46,6 +47,7 @@ defmodule Groundstation do
     connections = Map.get(state, :connections)
     num_connection = Enum.count(connections)
     info_list=Enum.map(connections, fn c -> _sat_info(c) end)
+    info_list 
   end
 
 
@@ -60,8 +62,8 @@ defmodule Groundstation do
   def handle_call({:info, msg}, _from, state) do
     case msg do
       "sat_info" ->
-        get_sat_info(state)
-
+        sat_info = get_sat_info(state)
+        {:reply,sat_info,state} 
       "connection_info" ->
         c = get_connection_info(state)
         unique_c = Enum.uniq(c) 

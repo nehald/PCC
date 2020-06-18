@@ -94,13 +94,12 @@ defmodule CCoreWeb.ApiController do
       |> get_session(:current_user_id)
       |> get_user_id
 
-    gs_proc_name = current_user <> ":proc:" <> Map.get(params, "gs")
-
+    gs_proc_name =Map.get(params, "gs")
     groundstation_pid =
       gs_proc_name
       |> Swarm.whereis_name()
 
-    sat_proc_name = current_user <> ":proc:" <> Map.get(params, "sat")
+    sat_proc_name = Map.get(params, "sat")
 
     sat_pid =
       sat_proc_name
@@ -111,30 +110,39 @@ defmodule CCoreWeb.ApiController do
     json(conn, return_dict)
   end
 
+
+   
+  @doc """
+    Get connection info from a groundstation 
+  """
   def gs_info(conn, params) do
     current_user =
       conn
       |> get_session(:current_user_id)
       |> get_user_id
 
-    gs_proc_name = current_user <> ":proc:" <> Map.get(params, "gs")
+    gs_proc_name = Map.get(params, "gs")
 
     groundstation_pid =
       gs_proc_name
       |> Swarm.whereis_name()
 
     m = GenServer.call(groundstation_pid, {:info, "connection_info"})
-    IO.puts(m)
-    json(conn, m)
+    return_dict = %{"cmd" => "gs_info", "gs" => gs_proc_name, "sat" => m}
+
+    json(conn, return_dict)
   end
 
+  @doc """
+    Get info about the sats connected to this groundstation
+   """
   def gs_sat_info(conn, params) do
     current_user =
       conn
       |> get_session(:current_user_id)
       |> get_user_id
 
-    gs_proc_name = current_user <> ":proc:" <> Map.get(params, "gs")
+    gs_proc_name = Map.get(params, "gs")
 
     groundstation_pid =
       gs_proc_name
@@ -143,6 +151,22 @@ defmodule CCoreWeb.ApiController do
     m = GenServer.call(groundstation_pid, {:info, "sat_info"})
     json(conn, m)
   end
+
+   @doc """
+    Get info about a sat directly
+   """
+   def sat_info(conn,params) do 
+    current_user =
+      conn
+      |> get_session(:current_user_id)
+      |> get_user_id
+
+    sat_name = Map.get(params,:sat_handle)
+    sat_pid = sat_name |> Swarm.whereis_name 
+    info = GenServer.call(sat_pid,:info)    
+   end  
+          
+
 
   def graph(conn, params) do
     current_user =
@@ -159,6 +183,8 @@ defmodule CCoreWeb.ApiController do
     return_dict = %{"dotfile" => dotfile}
     json(conn, return_dict)
   end
+
+
 
   def swarm_info(conn, params) do
     key = Map.get(params, "key")

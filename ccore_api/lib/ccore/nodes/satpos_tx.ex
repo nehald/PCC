@@ -12,20 +12,27 @@ defmodule SatPos do
   #
   def init(data) do
     name = Map.get(data, :name)
-    # tx_pid = Map.get(data, :tx_pid)
-    IO.puts(inspect(data))
     pos_url = "http://localhost:5000/sat/position/" <> name
-    ## position server state vector 
-    state = %{
+
+    base_state = %{
       :url => pos_url,
       :name => name,
       :delay => 3_000,
-      :status => :up,
       :service_info => :pos,
       :polling => 0
     }
 
-    {:ok, state}
+    {status, _value} = HTTPoison.get("http://localhost:5000/status")
+
+    case status do
+      :err ->
+        base_state = Map.put(base_state, :status, :down)
+
+      :ok ->
+        base_state = Map.put(base_state, :status, :up)
+    end
+
+    {:ok, base_state}
   end
 
   def handle_info(:test, state) do
@@ -63,23 +70,28 @@ defmodule SatPos do
     pos_url = Map.get(state, :url)
     pos_url_encoded = URI.encode(pos_url)
     name = Map.get(state, :name)
-    http_call = HTTPoison.get(pos_url_encoded)
-
-    case http_call do
+    satpos=%{}
+    case HTTPoison.get(pos_url_encoded) do
       {:ok, response} ->
         body = Map.get(response, :body)
-        delay = Map.get(state, :delay)
-        satpos = %{:name => name, :body => body}
-        state = Map.put(state, :satpos, satpos)
+        satpos = Map.put(satpos,:name,name)
+        satpos = Map.put(satpos,:body,body)
       {:error, _} ->
-        state2 = Map.replace!(state, :status, :down)
-        IO.puts("error state=" <> inspect(state2))
+        state = Map.replace!(state, :status, :down)
+        satpos=Map.put(satpos,:name,name)
+        satpos=Map.put(satpos,:body,nil)
     end
   end
 
   def handle_call(:info, _from, state) do
-    satpos = Map.get(state, :satpos)
-    {:reply, satpos, state}
+    case Map.get(state,:polling) do
+        0-> 
+   	    satpos = get_position(state)
+     	    {:reply, satpos, state}
+
+        1 ->
+     	    {:noreply, state}
+    end 
   end
 
   #### position status
@@ -90,6 +102,7 @@ defmodule SatPos do
 
   def handle_call(:change_status, _from, state) do
     status = Map.get(state, :status)
+
     case status do
       :up ->
         state = Map.put(state, :status, :down)
