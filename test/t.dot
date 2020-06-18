@@ -1,7 +1,0 @@
-strict digraph {
-   "user:nehal.desaix@aero.org:topic" 
-    "user:nehal.desaix@aero.org:graphdb"   
-     "user:nehal.desaix@aero.org"    
-     "user:nehal.desaix@aero.org" -> "user:nehal.desaix@aero.org:topic" [weight=1]   
-      "user:nehal.desaix@aero.org" -> "user:nehal.desaix@aero.org:graphdb" [weight=1]
-}

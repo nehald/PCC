@@ -1,27 +1,15 @@
 """
     test for PCC apis
 """
-import json
 import pdb
 import requests
-import requests.exceptions as E
 URL = "http://localhost:4000/api/"
 headers = {"Content-Type": "application/json"}
 
 
-response_ = {"spawn": lambda x: x,"gs_to_sat": lambda x: x,"gs_info":lambda x: x} 
-
-
 def response_to_str(val):
-    print(val)
-    if isinstance(val, requests.Response):
-        response_json = val.json()
-        cmd = response_json['cmd']
-        response_func = response_[cmd]
-        response_return = response_func(response_json)
-        return response_return
-    else:
-        rdict = val.decode('utf-8')
+    rdict = json.loads(val.decode('utf-8'))
+    rdict = val.decode('utf-8')
     return rdict
 
 
@@ -81,7 +69,7 @@ def spawn_proc(cookie_jar, proc_type, name, extra_channels, visible):
 
         response = response_to_str(response)
         return response
-    except E.RequestException as e_e:
+    except requests.exceptions.RequestException as e_e:
         return {"Error": e_e}
 
 
@@ -117,7 +105,7 @@ def spawn_groundstation(cookie_jar, name, loc=[0, 0]):
 
         response = response_to_str(response)
         return response
-    except E.RequestException as e_e:
+    except requests.exceptions.RequestException as e_e:
         return {"Error": e_e}
 
 
@@ -126,14 +114,12 @@ def gs_connect(cookie_jar, groundstation=None, sat=None):
      connect a ground station to a satellite
     """
 
-    # get the groundstation and sat info from the handle
-
     url_connect = URL + "gs/connect"
     if groundstation is None or sat is None:
         return {"Error": "groundstation or sat not specified"}
 
     # connection
-    connect_data = {"gs": groundstation['name'], "sat": sat['name']}
+    connect_data = {"gs": groundstation, "sat": sat}
     try:
         response = requests.post(url_connect,
                                  headers=headers,
@@ -142,7 +128,7 @@ def gs_connect(cookie_jar, groundstation=None, sat=None):
 
         response = response_to_str(response)
         return response
-    except E.RequestException as e_e:
+    except requests.exceptions.RequestException as e_e:
         return {"Error": e_e}
 
 
@@ -152,7 +138,7 @@ def gs_connection_info(cookie_jar, groundstation=None):
     if groundstation is None:
         return {"Error": "groundstation or sat not specified"}
 
-    info = {"gs": groundstation['name']}
+    info = {"gs": groundstation}
     try:
         response = requests.post(url_gs,
                                  headers=headers,
@@ -162,7 +148,7 @@ def gs_connection_info(cookie_jar, groundstation=None):
 
         response = response_to_str(response)
         return response
-    except E.RequestException as e_e:
+    except requests.exceptions.RequestException as e_e:
         return {"Error": e_e}
 
 
@@ -171,7 +157,7 @@ def gs_sat_info(cookie_jar, groundstation=None):
     if groundstation is None:
         return {"Error": "groundstation or sat not specified"}
 
-    info = {"gs": groundstation['name']}
+    info = {"gs": groundstation}
     try:
         response = requests.post(url_gs,
                                  headers=headers,
@@ -179,15 +165,15 @@ def gs_sat_info(cookie_jar, groundstation=None):
                                  cookies=cookie_jar,
                                  timeout=None)
 
-        #response = response_to_str(response)
+        response = response_to_str(response)
         return response
-    except E.RequestException as e_e:
+    except requests.exceptions.RequestException as e_e:
         return {"Error": e_e}
 
 
 def sat_info(cookie_jar, sat_handle):
     url_sat = URL + "sat"
-    info = {"sat": sat_handle["name"]}
+    info = {"sat": sat_handle}
     try:
         response = requests.post(url_sat,
                                  headers=headers,
@@ -197,7 +183,7 @@ def sat_info(cookie_jar, sat_handle):
 
         response = response_to_str(response)
         return response
-    except E.RequestException as e_e:
+    except requests.exceptions.RequestException as e_e:
         return {"Error": e_e}
 
 
@@ -205,11 +191,10 @@ if __name__ == '__main__':
     user_cookie = sign_in("nehal.desaix@aero.org", "foobar")
     spawn_handle_45555 = spawn_proc(user_cookie, "generic", "45555", [], 0)
     spawn_handle_45394 = spawn_proc(user_cookie, "generic", "45394", [], 0)
+
+
     gs_handle = spawn_groundstation(user_cookie, "gs2", loc=[1, 1])
-    gs_connect(user_cookie, gs_handle, spawn_handle_45555)
-    gs_connect(user_cookie, gs_handle, spawn_handle_45394)
-    gs_connect_response = gs_connection_info(user_cookie, gs_handle)
-    print(gs_connect_response) 
-   #response = gs_sat_info(user_cookie, gs_handle)
-    response =  sat_info(user_cookie,spawn_handle_45555)  
-    print(response.text)
+    gs_connect(user_cookie, "gs2", "45555")
+    gs_connect(user_cookie, "gs2", "45394")
+    gs_connect_response = gs_connection_info(user_cookie, "gs2")
+    #response = gs_sat_info(user_cookie, "gs2")

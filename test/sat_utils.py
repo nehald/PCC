@@ -143,9 +143,10 @@ def sat_position_eci(satname, dbid=0):
 
 if __name__ == '__main__':
     #get_sat_list()
-    #url, filename = get_sat_data()
+    pdb.set_trace() 
+    url, filename = get_sat_data()
     #dbid = save_sat_data()
-    pos, sat_lat, sat_lon = sat_position_eci("45555")
+    #pos, sat_lat, sat_lon = sat_position_eci("45555")
     pdb.set_trace()
     print(sat_lat, sat_lon)
     #sat, tle_line1, tle_line2 = get_tle_sat("24916")
