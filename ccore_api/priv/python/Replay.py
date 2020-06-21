@@ -54,5 +54,5 @@ class Replay():
 
 
 # if __name__ =='__main__':
-#    C = Replay("/tmp/test.csv")
-#    C.playback()
+    C = Replay("/tmp/test.csv")
+    C.playback()

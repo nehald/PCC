@@ -27,7 +27,6 @@ defmodule CCoreWeb.PythonServer do
 
   def handle_info({:python, message}, session) do
     IO.puts("Received message from python: #{inspect(message)}")
-    IO.puts("*************************")  
     {:noreply,session}
   end
 

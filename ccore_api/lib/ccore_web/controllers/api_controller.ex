@@ -164,11 +164,28 @@ defmodule CCoreWeb.ApiController do
       |> get_user_id
     sat_name = Map.get(params,"sat_handle")
     sat_pid = sat_name |> Swarm.whereis_name 
-    info = GenServer.call(sat_pid,:sat_info)    
+    info = GenServer.call(sat_pid,{:sat_info,params})    
     json(conn,info) 
    end  
           
 
+  def sat_group(conn,params) do
+    group_name = Map.get(params,"group_name")
+    sat_name = Map.get(params,"sat_handle")
+    sat_pid = sat_name |> Swarm.whereis_name
+    Swarm.join(group_name,sat_pid)
+    return_dict= %{"cmd"=>"join_group","sat"=> sat_name, "group" => group_name}
+    json(conn,return_dict)
+   end 
+
+
+  ####
+  def sat_group_call(conn,params) do
+    group_name = Map.get(params,"group_name")
+    info = Swarm.multi_call(group_name,{:sat_info,params}) 
+    return_dict= %{"cmd"=>"sat_group_call","val"=> info} 
+    json(conn,info)
+    end
 
   def graph(conn, params) do
     current_user =
