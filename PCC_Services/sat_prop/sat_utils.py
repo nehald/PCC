@@ -1,3 +1,5 @@
+import os
+import time
 import pdb
 import copy
 import json
@@ -125,18 +127,27 @@ def get_sat_tle(satname, dbid=0):
     return ((satname, line1, line2))
 
 
-def sat_position(satname, dbid=0,ref="eci"):
+def sat_position(satname, dbid=0, ref="eci"):
     """
       Satellite position in eci and lat,lon
     """
-    ## get sat tl
+    ## get sat
+    since_last_update = (time.time() -
+                         os.stat("celestrak.txt").st_ctime) / 3600.00
+    ## if file is greater then 8 hrs. Get new tle file
+    if since_last_update > 3600 * 8.0:
+        _, name = get_sat_data()
+        if "no_file" in name:
+            return "error in celestrak file"
+        dbid = save_sat_data()
+
     satname, line1, line2 = get_sat_tle(satname, dbid)
     ts = load.timescale(builtin=True)
     satellite = EarthSatellite(line1, line2, satname, ts)
     satellite_model = satellite.at(ts.now())
     position = satellite_model.position.km
     if ref == 'ecef':
-         position = satellite_model.itrf_xyz().km
+        position = satellite_model.itrf_xyz().km
 
     ## get the subpoint
     subpoint = satellite_model.subpoint()
@@ -147,10 +158,10 @@ def sat_position(satname, dbid=0,ref="eci"):
 
 if __name__ == '__main__':
     #get_sat_list()
-    #pdb.set_trace() 
+    #pdb.set_trace()
     #url, filename = get_sat_data()
     #dbid = save_sat_data()
     pos, sat_lat, sat_lon = sat_position("45555")
-    pos, sat_lat, sat_lon = sat_position("45555",ref="eci")
+    pos, sat_lat, sat_lon = sat_position("45555", ref="eci")
     pdb.set_trace()
     print(sat_lat, sat_lon)

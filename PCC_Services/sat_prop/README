@@ -1,0 +1,8 @@
+In order for this server to work
+you need redis up and running
+redis-server  --daemonize yes
+(vv) desai@desai-VirtualBox:~/Downloads/PCC/PCC_Services/sat_prop$ redis-cli
+127.0.0.1:6379> ping
+PONG
+
+
