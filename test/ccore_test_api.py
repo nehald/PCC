@@ -9,7 +9,7 @@ URL = "http://localhost:4000/api/"
 headers = {"Content-Type": "application/json"}
 
 
-response_ = {"spawn": lambda x: x,"gs_to_sat": lambda x: x,"gs_info":lambda x: x} 
+response_ = {"join_group": lambda x: x,"spawn": lambda x: x,"gs_to_sat": lambda x: x,"gs_info":lambda x: x} 
 
 
 def response_to_str(val):
@@ -185,9 +185,26 @@ def gs_sat_info(cookie_jar, groundstation=None):
         return {"Error": e_e}
 
 
-def sat_info(cookie_jar, sat_handle):
-    url_sat = URL + "sat"
-    info = {"sat": sat_handle["name"]}
+def sat_info(cookie_jar, sat_handle,info_type="position"):
+    url_sat = URL + "sat/info"
+    pdb.set_trace() 
+    info = {"sat_handle": sat_handle["name"],"info_type":info_type}
+    try:
+        response = requests.post(url_sat,
+                                 headers=headers,
+                                 json=info,
+                                 cookies=cookie_jar,
+                                 timeout=None)
+
+        #response = response_to_str(response)
+        return response
+    except E.RequestException as e_e:
+        return {"Error": e_e}
+
+
+def sat_add_to_group(cookie_jar, sat_handle,group_name="default"):
+    url_sat = URL + "sat/group"
+    info = {"sat_handle": sat_handle["name"],"group_name":group_name}
     try:
         response = requests.post(url_sat,
                                  headers=headers,
@@ -200,16 +217,35 @@ def sat_info(cookie_jar, sat_handle):
     except E.RequestException as e_e:
         return {"Error": e_e}
 
+def sat_group_call(cookie_jar,group_name="default"):
+    url_sat = URL + "sat/group_call"
+    info = {"group_name":group_name,"type_info":"position"}
+    try:
+        response = requests.post(url_sat,
+                                 headers=headers,
+                                 json=info,
+                                 cookies=cookie_jar,
+                                 timeout=None)
+
+        return response
+    except E.RequestException as e_e:
+        return {"Error": e_e}
+
+
 
 if __name__ == '__main__':
-    user_cookie = sign_in("nehal.desaix@aero.org", "foobar")
-    spawn_handle_45555 = spawn_proc(user_cookie, "generic", "45555", [], 0)
-    spawn_handle_45394 = spawn_proc(user_cookie, "generic", "45394", [], 0)
-    gs_handle = spawn_groundstation(user_cookie, "gs2", loc=[1, 1])
-    gs_connect(user_cookie, gs_handle, spawn_handle_45555)
-    gs_connect(user_cookie, gs_handle, spawn_handle_45394)
-    gs_connect_response = gs_connection_info(user_cookie, gs_handle)
-    print(gs_connect_response) 
+   user_cookie = sign_in("nehal.desaix@aero.org", "foobar")
+   #spawn_handle_45555 = spawn_proc(user_cookie, "generic", "45555", [], 0)
+   #spawn_handle_45394 = spawn_proc(user_cookie, "generic", "45394", [], 0)
+   #gs_handle = spawn_groundstation(user_cookie, "gs2", loc=[1, 1])
+   #gs_connect(user_cookie, gs_handle, spawn_handle_45555)
+   #gs_connect(user_cookie, gs_handle, spawn_handle_45394)
+   #gs_connect_response = gs_connection_info(user_cookie, gs_handle)
+   #print(gs_connect_response) 
    #response = gs_sat_info(user_cookie, gs_handle)
-    response =  sat_info(user_cookie,spawn_handle_45555)  
-    print(response.text)
+#  #jiresponse =  sat_info(user_cookie,spawn_handle_45555)  
+   #response =  sat_add_to_group(user_cookie,spawn_handle_45555)  
+   #response =  sat_add_to_group(user_cookie,spawn_handle_45394)  
+   response =  sat_group_call(user_cookie)  
+   pdb.set_trace()
+   print(response.json())

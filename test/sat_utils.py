@@ -4,7 +4,7 @@ import json
 import datetime
 import redis
 import requests
-
+import astropy
 from skyfield.api import load, EarthSatellite
 # save formatted (from get_sat_data) celetrak
 
@@ -125,7 +125,7 @@ def get_sat_tle(satname, dbid=0):
     return ((satname, line1, line2))
 
 
-def sat_position_eci(satname, dbid=0):
+def sat_position(satname, dbid=0,ref="eci"):
     """
       Satellite position in eci and lat,lon
     """
@@ -135,6 +135,10 @@ def sat_position_eci(satname, dbid=0):
     satellite = EarthSatellite(line1, line2, satname, ts)
     satellite_model = satellite.at(ts.now())
     position = satellite_model.position.km
+    if ref == 'ecef':
+         position = satellite_model.itrf_xyz().km
+
+    ## get the subpoint
     subpoint = satellite_model.subpoint()
     lat = subpoint.latitude.degrees
     lon = subpoint.longitude.degrees
@@ -143,10 +147,10 @@ def sat_position_eci(satname, dbid=0):
 
 if __name__ == '__main__':
     #get_sat_list()
-    pdb.set_trace() 
-    url, filename = get_sat_data()
+    #pdb.set_trace() 
+    #url, filename = get_sat_data()
     #dbid = save_sat_data()
-    #pos, sat_lat, sat_lon = sat_position_eci("45555")
+    pos, sat_lat, sat_lon = sat_position("45555")
+    pos, sat_lat, sat_lon = sat_position("45555",ref="eci")
     pdb.set_trace()
     print(sat_lat, sat_lon)
-    #sat, tle_line1, tle_line2 = get_tle_sat("24916")

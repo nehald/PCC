@@ -26,12 +26,12 @@ def update_tle_db():
 
 
 @application.route("/sat/position/<satid>")
-def sat_position_eci(satid):
+def sat_position(satid):
     """
      Get the position of the satellite
     """
     timestamp = sat_utils.current_time()
-    pos, lat, lon = sat_utils.sat_position_eci(satid)
+    pos, lat, lon = sat_utils.sat_position(satid,ref="ecef")
     sat_dict = {
         "time": timestamp,
         "satname": satid,
