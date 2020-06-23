@@ -1,5 +1,6 @@
 import json
 import pdb
+import pprint
 import requests
 
 class Greenfield:
@@ -7,19 +8,22 @@ class Greenfield:
     def __init__(self):
         self.sim_url = "http://theshire.aero.org:3000/api/"
         self.callback_url = "http://howard.aero.org:8080/"
+        pdb.set_trace()
         self.start_payload = {
             "simRunning": True,
             "metronomePeriod_sec": 1.0,
-            "numRxNodes": 3,
+            "numRxNodes": 30,
             "clienturlPhyTxBegin": "http://localhost:8000",
             "clienturlPhyRxBegin": "http://localhost:8000",
             "clienturlPhyRxEnd": "http://localhost:8000",
             "clienturlPhyRxDrop": "http://localhost:8000",
             "clienturlMacRx": "http://localhost:8000",
             "clienturlSockRx": self.callback_url + "callbackSockRx",
-            "clienturlMetronome": self.callback_url + "callbackMetronome"
+            "clienturlMetronome": 'ffffdsfsdfdf' 
         }
 
+        ##x="clienturlMetronome": self.callback_url + "callbackMetronome"
+        pdb.set_trace()
         self.stop_payload = {"simRunning": False}
         self._start = json.dumps(self.start_payload)
         self._stop = json.dumps(self.stop_payload)
@@ -55,4 +59,5 @@ class Greenfield:
 if __name__ == '__main__':
     G = Greenfield()
     pdb.set_trace()
-    print(G.stop())
+    pprint.pprint(G.start())
+
