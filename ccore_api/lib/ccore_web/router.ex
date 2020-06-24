@@ -21,6 +21,9 @@ defmodule CCoreWeb.Router do
     post "/sat/info",ApiController,:sat_info
     post "/sat/group",ApiController,:sat_group
     post "/sat/group_call",ApiController,:sat_group_call
+    post "/channel/create",ApiController,:topic_create
+    post "/channel/push",ApiController,:topic_push
+    post "/swarm/info",ApiController,:swarm_info
   end
  
   scope "/api", CCoreWeb do 

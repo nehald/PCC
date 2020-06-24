@@ -1,0 +1,8 @@
+[info] [swarm on nonode@nohost] [tracker:init] started
+[info] Running CCoreWeb.Endpoint with cowboy 2.7.0 at 0.0.0.0:4000 (http)
+[info] Access CCoreWeb.Endpoint at http://localhost:4000
+[info] [swarm on nonode@nohost] [tracker:cluster_wait] joining cluster..
+[info] [swarm on nonode@nohost] [tracker:cluster_wait] no connected nodes, proceeding without sync
+
+BREAK: (a)bort (A)bort with dump (c)ontinue (p)roc info (i)nfo
+       (l)oaded (v)ersion (k)ill (D)b-tables (d)istribution

@@ -94,7 +94,8 @@ defmodule CCoreWeb.ApiController do
       |> get_session(:current_user_id)
       |> get_user_id
 
-    gs_proc_name =Map.get(params, "gs")
+    gs_proc_name = Map.get(params, "gs")
+
     groundstation_pid =
       gs_proc_name
       |> Swarm.whereis_name()
@@ -110,8 +111,6 @@ defmodule CCoreWeb.ApiController do
     json(conn, return_dict)
   end
 
-
-   
   @doc """
     Get connection info from a groundstation 
   """
@@ -134,8 +133,8 @@ defmodule CCoreWeb.ApiController do
   end
 
   @doc """
-    Get info about the sats connected to this groundstation
-   """
+   Get info about the sats connected to this groundstation
+  """
   def gs_sat_info(conn, params) do
     current_user =
       conn
@@ -152,40 +151,39 @@ defmodule CCoreWeb.ApiController do
     json(conn, m)
   end
 
-   @doc """
-    Get info about a sat directly
-    generic(:sat_info) -> satprop(:info) 
+  @doc """
+   Get info about a sat directly
+   generic(:sat_info) -> satprop(:info) 
 
-   """
-   def sat_info(conn,params) do 
+  """
+  def sat_info(conn, params) do
     current_user =
       conn
       |> get_session(:current_user_id)
       |> get_user_id
-    sat_name = Map.get(params,"sat_handle")
-    sat_pid = sat_name |> Swarm.whereis_name 
-    info = GenServer.call(sat_pid,{:sat_info,params})    
-    json(conn,info) 
-   end  
-          
 
-  def sat_group(conn,params) do
-    group_name = Map.get(params,"group_name")
-    sat_name = Map.get(params,"sat_handle")
-    sat_pid = sat_name |> Swarm.whereis_name
-    Swarm.join(group_name,sat_pid)
-    return_dict= %{"cmd"=>"join_group","sat"=> sat_name, "group" => group_name}
-    json(conn,return_dict)
-   end 
+    sat_name = Map.get(params, "sat_handle")
+    sat_pid = sat_name |> Swarm.whereis_name()
+    info = GenServer.call(sat_pid, {:sat_info, params})
+    json(conn, info)
+  end
 
+  def sat_group(conn, params) do
+    group_name = Map.get(params, "group_name")
+    sat_name = Map.get(params, "sat_handle")
+    sat_pid = sat_name |> Swarm.whereis_name()
+    Swarm.join(group_name, sat_pid)
+    return_dict = %{"cmd" => "join_group", "sat" => sat_name, "group" => group_name}
+    json(conn, return_dict)
+  end
 
   ####
-  def sat_group_call(conn,params) do
-    group_name = Map.get(params,"group_name")
-    info = Swarm.multi_call(group_name,{:sat_info,params}) 
-    return_dict= %{"cmd"=>"sat_group_call","val"=> info} 
-    json(conn,info)
-    end
+  def sat_group_call(conn, params) do
+    group_name = Map.get(params, "group_name")
+    info = Swarm.multi_call(group_name, {:sat_info, params})
+    return_dict = %{"cmd" => "sat_group_call", "val" => info}
+    json(conn, info)
+  end
 
   def graph(conn, params) do
     current_user =
@@ -204,6 +202,31 @@ defmodule CCoreWeb.ApiController do
   end
 
 
+  #### start the channel
+  def topic_create(conn, params) do
+    current_user =
+      conn
+      |> get_session(:current_user_id)
+      |> get_user_id
+
+    topic = Map.get(params, "topic")
+    topic_name = current_user<>":topic:"<>topic
+    params = %{:current_user => current_user, :user_topic => topic_name}
+
+    socket_opts = [
+      url: "ws://localhost:4000/socket/websocket",
+      params: params
+    ]
+
+    {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
+    :timer.sleep(1000)
+    {:ok, response, channel} = PhoenixClient.Channel.join(socket, topic_name)
+    topic_name = current_user<>":topic:"<>topic
+    Swarm.register_name(topic_name,channel) 
+    return_dict =%{"topic"=>topic_name}   
+    IEx.pry
+    json(conn, return_dict)
+  end
 
   def swarm_info(conn, params) do
     key = Map.get(params, "key")

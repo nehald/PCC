@@ -53,6 +53,6 @@ class Replay():
         env.run(until=proc)
 
 
-# if __name__ =='__main__':
+if __name__ =='__main__':
     C = Replay("/tmp/test.csv")
     C.playback()

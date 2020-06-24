@@ -1,7 +1,7 @@
 defmodule CCoreWeb.PythonServer do
   use GenServer
   alias CCoreWeb.Python
-
+  require IEx
   def start_link() do
     GenServer.start_link(__MODULE__, [])
   end

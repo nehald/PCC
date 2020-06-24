@@ -1,5 +1,5 @@
 # import erlport modules and functions
-from erlport.erlang import set_MESSAGE_HANDLER, cast
+from erlport.erlang import set_message_handler, cast
 from erlport.erlterms import Atom
 import Replay as R
 
@@ -30,4 +30,4 @@ def handle_message(csvfile):
 
 
 # set handle_message to receive all messages sent to this python instance
-set_MESSAGE_HANDLER(handle_message)
+set_message_handler(handle_message)

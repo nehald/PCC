@@ -1,12 +1,14 @@
 # lib/python.ex
 defmodule CCoreWeb.Python do
+   require IEx
+
   @doc """
    Start python instance with custom modules dir priv/python 
   """
   def start() do
-    path =
+   path =
       [
-        :code.priv_dir(:ccore_api),
+        :code.priv_dir(:ccore),
         "python"
       ]
       |> Path.join()
@@ -15,7 +17,6 @@ defmodule CCoreWeb.Python do
       :python.start([
         {:python_path, to_charlist(path)}
       ])
-
     pid
   end
 

@@ -30,6 +30,7 @@ defmodule Generic do
     name = Map.get(state, "name")
     {:ok, txpid} = Tx.start_link(state)
     {:ok, satprop} = SatPos.start_link(%{:name => name})
+    #{:ok, battery} = CCoreWeb.PythonServer.start_link()
     ###  Sat services  
     state = Map.put(state, :txpid, txpid)
     
