@@ -1,0 +1,9 @@
+PCC Service
+
+--> Essential  (Services for PCC to run properly) 
+----> Redis
+----> Sat Prop
+----> Storage
+
+--> Non Essential
+----> Greenfield

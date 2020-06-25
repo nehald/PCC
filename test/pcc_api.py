@@ -16,6 +16,7 @@ def response_to_str(val):
     print(val)
     if isinstance(val, requests.Response):
         response_json = val.json()
+        print(response_json)
         cmd = response_json['cmd']
         response_func = response_[cmd]
         response_return = response_func(response_json)
@@ -87,7 +88,8 @@ def spawn_proc(cookie_jar, proc_type, name, extra_channels, visible):
 
 def graph_info(cookiejar):
     """ Get the user graph
-       cookiejar  - session id
+       Arguments: 
+            cookiejar  - session id
     """
     url_graph = URL + "graph"
     info_data = {"info": "graph"}
@@ -105,7 +107,11 @@ def graph_info(cookiejar):
 
 def spawn_groundstation(cookie_jar, name, loc=[0, 0]):
     """
-      start a groundstation
+      Start a groundstation
+      Arguments:
+           cookie_jar  -- session id
+           name  -- name of the groundstation (unique)
+           loc  -- location of the groundstation (loc = [33.12,-118.23]) 
     """
     url_spawn = URL + "spawn"
     spawn_data = {"name": name, "loc": loc, "proc_type": "groundstation"}
@@ -185,9 +191,16 @@ def gs_sat_info(cookie_jar, groundstation=None):
         return {"Error": e_e}
 
 
-def sat_info(cookie_jar, sat_handle,info_type="position"):
+def get_sat_info(cookie_jar, sat_handle,info_type="position"):
+    """
+     Get information (location,velocity,battery) from the satellite object directly
+     Arguments:
+         cookie_jar  -- session id
+         sat_handle  -- the satellite handle returned from the spawn command
+         info_type  -- what type of info you want returned
+    """ 
+
     url_sat = URL + "sat/info"
-    pdb.set_trace() 
     info = {"sat_handle": sat_handle["name"],"info_type":info_type}
     try:
         response = requests.post(url_sat,
@@ -203,6 +216,14 @@ def sat_info(cookie_jar, sat_handle,info_type="position"):
 
 
 def sat_add_to_group(cookie_jar, sat_handle,group_name="default"):
+    """ 
+     Adds a satellite (sat_handle) to group.  We can then "address"/send messages
+     to all members of the group simulatenously
+     Arguments:
+         cookie_jar -- session id
+         sat_handle  -- handle from the spawn command
+         group_name --  group name (string) 
+   """  
     url_sat = URL + "sat/group"
     info = {"sat_handle": sat_handle["name"],"group_name":group_name}
     try:
@@ -217,7 +238,15 @@ def sat_add_to_group(cookie_jar, sat_handle,group_name="default"):
     except E.RequestException as e_e:
         return {"Error": e_e}
 
-def sat_group_call(cookie_jar,group_name="default"):
+def sat_group_call(cookie_jar,group_name="default",info_type="position"):
+    """ 
+    Send every "sat" in the group a message 
+    Arguments:
+       cookie_jar == session id
+       group_name (str) -- default value  == "default" 
+       info_type  -- type of message to send (default = position)
+    """ 
+       
     url_sat = URL + "sat/group_call"
     info = {"group_name":group_name,"type_info":"position"}
     try:
@@ -232,9 +261,26 @@ def sat_group_call(cookie_jar,group_name="default"):
         return {"Error": e_e}
 
 
+def create_topic(cookie_jar,topic):
+    url_topic_create = URL + "channel/create"
+    info = {"topic":topic}
+    try:
+       response = requests.post(url_topic_create,
+                                headers=headers,
+                                json=info,
+                                cookies=cookie_jar,
+                                timeout=None)
+                        
+       return response.json()
+    except E.RequestException as e_e:
+       return {"Error": e_e}
 
 if __name__ == '__main__':
-   user_cookie = sign_in("nehal.desaix@aero.org", "foobar")
+   #c = create_user("nehalnehal@aero.org","foobar")
+   user_cookie = sign_in("nehalnehal@aero.org", "foobar")
+   topic = create_topic(user_cookie,"testchannel")
+   print(topic) 
+   pdb.set_trace()
    #spawn_handle_45555 = spawn_proc(user_cookie, "generic", "45555", [], 0)
    #spawn_handle_45394 = spawn_proc(user_cookie, "generic", "45394", [], 0)
    #gs_handle = spawn_groundstation(user_cookie, "gs2", loc=[1, 1])
@@ -246,6 +292,6 @@ if __name__ == '__main__':
 #  #jiresponse =  sat_info(user_cookie,spawn_handle_45555)  
    #response =  sat_add_to_group(user_cookie,spawn_handle_45555)  
    #response =  sat_add_to_group(user_cookie,spawn_handle_45394)  
-   response =  sat_group_call(user_cookie)  
-   pdb.set_trace()
-   print(response.json())
+   #response =  sat_group_call(user_cookie)  
+   #pdb.set_trace()
+   #print(response.json())

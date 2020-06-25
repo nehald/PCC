@@ -224,7 +224,6 @@ defmodule CCoreWeb.ApiController do
     topic_name = current_user<>":topic:"<>topic
     Swarm.register_name(topic_name,channel) 
     return_dict =%{"topic"=>topic_name}   
-    IEx.pry
     json(conn, return_dict)
   end
 
