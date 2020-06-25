@@ -16,13 +16,14 @@ def get_starlink():
 
 
 starlink = get_starlink()
-## sign into PCC
+## sign into Praire Common Core 
 user_cookie = pcc.sign_in("nehal.desaix@aero.org", "foobar")
 star_dict = {}
-for s in starlink[0:2]:
+for s in starlink[0:200]:
     ## spawn a  satellite processes 
     temp_handle = pcc.spawn_proc(user_cookie, "generic", s, [], 0)
     ## add each sat to a group (collection of sats)
+    pdb.set_trace()
     response = pcc.sat_add_to_group(user_cookie, temp_handle)
 
 
@@ -36,4 +37,4 @@ simulation_server = "http://theshire.aero.org:3000"
 for i in range(0,100):
 	starlink_positions = pcc.sat_group_call(user_cookie,info_type = "position")
 	starlink_positions_json = starlink_positions.json()
-print(starlink_positions_json)
+	print(starlink_positions_json)

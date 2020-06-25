@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>pcc_api.py</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id='container'>
+  <div id="background"></div>
+  <div class='section'>
+    <div class='docs'><h1>pcc_api.py</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      <pre><code>test for PCC apis
+</code></pre>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pdb</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">requests.exceptions</span> <span class="k">as</span> <span class="nn">E</span>
+<span class="n">URL</span> <span class="o">=</span> <span class="s2">&quot;http://localhost:4000/api/&quot;</span>
+<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
+
+<span class="n">response_</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;join_group&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+    <span class="s2">&quot;spawn&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+    <span class="s2">&quot;gs_to_sat&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>
+    <span class="s2">&quot;gs_info&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
+<span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">response_to_str</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">requests</span><span class="o">.</span><span class="n">Response</span><span class="p">):</span>
+        <span class="n">response_json</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">response_json</span><span class="p">)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">response_json</span><span class="p">[</span><span class="s1">&#39;cmd&#39;</span><span class="p">]</span>
+        <span class="n">response_func</span> <span class="o">=</span> <span class="n">response_</span><span class="p">[</span><span class="n">cmd</span><span class="p">]</span>
+        <span class="n">response_return</span> <span class="o">=</span> <span class="n">response_func</span><span class="p">(</span><span class="n">response_json</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response_return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">rdict</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rdict</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <p>curl -H &ldquo;Content-Type: application/json&rdquo; -X POST \
+-d &lsquo;{&ldquo;user&rdquo;:{&ldquo;email&rdquo;:&rdquo;some@email.com&rdquo;,&rdquo;password&rdquo;:&rdquo;some password&rdquo;}}&rsquo; \
+ http://localhost:4000/api/users</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">create_user</span><span class="p">(</span><span class="n">email</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="n">password</span><span class="p">}}</span>
+    <span class="n">create_user_url</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;/users/create&quot;</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">create_user_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <p>Sign in user</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">sign_in</span><span class="p">(</span><span class="n">email</span><span class="p">,</span> <span class="n">password</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <p>curl -H &ldquo;Content-Type: application/json&rdquo; -X POST \
+  -d &lsquo;{&ldquo;user&rdquo;:{&ldquo;email&rdquo;:&rdquo;some@email.com&rdquo;,&rdquo;password&rdquo;:&rdquo;some password&rdquo;}}&rsquo; \
+   http://localhost:4000/api/users/sign_i</p>
+<pre><code>Arguments:
+</code></pre>
+<p>email &ndash; account name
+   password` - password
+    Return:
+  Session cookie</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="n">password</span><span class="p">}</span>
+    <span class="n">sign_in_url</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;users/sign_in&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">sign_in_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">}</span>
+    <span class="n">cookiejar</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">cookies</span>
+    <span class="k">return</span> <span class="n">cookiejar</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      <p>Spawn a process</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">spawn_proc</span><span class="p">(</span><span class="n">cookie_jar</span><span class="p">,</span> <span class="n">proc_type</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">extra_channels</span><span class="p">,</span> <span class="n">visible</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      <p>Arguments:
+   cookiejar  - user session id
+   proc_type - type of process to start
+   name - name of the process
+   extra_channels - additional channels to route process data
+   visible - nothing
+   cookiejar  - session id</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">url_spawn</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;spawn&quot;</span>
+    <span class="n">spawn_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;proc_type&quot;</span><span class="p">:</span> <span class="n">proc_type</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;extra_channels&quot;</span><span class="p">:</span> <span class="n">extra_channels</span><span class="p">,</span>
+        <span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="n">visible</span>
+    <span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_spawn</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">spawn_data</span><span class="p">,</span>
+                                 <span class="n">cookies</span><span class="o">=</span><span class="n">cookie_jar</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">response_to_str</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+    <span class="k">except</span> <span class="n">E</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e_e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="n">e_e</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      <p>Get the user graph</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">graph_info</span><span class="p">(</span><span class="n">cookiejar</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      <p>Arguments:
+       cookiejar  - session id</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">url_graph</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;graph&quot;</span>
+    <span class="n">info_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="s2">&quot;graph&quot;</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_graph</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">info_data</span><span class="p">,</span>
+                                 <span class="n">cookie</span><span class="o">=</span><span class="n">cookiejar</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">response_to_str</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="s2">&quot;info&quot;</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-10'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-10'>#</a>
+      </div>
+      <p>Start a groundstation
+  Arguments:
+       cookie_jar  &ndash; session id
+       name  &ndash; name of the groundstation (unique)
+       loc  &ndash; location of the groundstation (loc = [33.12,-118.23])</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">spawn_groundstation</span><span class="p">(</span><span class="n">cookie_jar</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-11'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-11'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">url_spawn</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;spawn&quot;</span>
+    <span class="n">spawn_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;loc&quot;</span><span class="p">:</span> <span class="n">loc</span><span class="p">,</span> <span class="s2">&quot;proc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;groundstation&quot;</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_spawn</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">spawn_data</span><span class="p">,</span>
+                                 <span class="n">cookies</span><span class="o">=</span><span class="n">cookie_jar</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">response_to_str</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+    <span class="k">except</span> <span class="n">E</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e_e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="n">e_e</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-12'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-12'>#</a>
+      </div>
+      <p>Connect a groundstation to a satellite
+  Arguments:
+       cookie_jar     &ndash; session id
+       groundstation  &ndash; groundstation 
+       satellite      &ndash; satellite handle </p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">gs_connect</span><span class="p">(</span><span class="n">cookie_jar</span><span class="p">,</span> <span class="n">groundstation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sat</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-13'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-13'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-14'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-14'>#</a>
+      </div>
+      <p>get the groundstation and sat info from the handle</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">url_connect</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;gs/connect&quot;</span>
+    <span class="k">if</span> <span class="n">groundstation</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">sat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="s2">&quot;groundstation or sat not specified&quot;</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-15'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-15'>#</a>
+      </div>
+      <p>connection</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">connect_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gs&quot;</span><span class="p">:</span> <span class="n">groundstation</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="s2">&quot;sat&quot;</span><span class="p">:</span> <span class="n">sat</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_connect</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">connect_data</span><span class="p">,</span>
+                                 <span class="n">cookies</span><span class="o">=</span><span class="n">cookie_jar</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">response_to_str</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+    <span class="k">except</span> <span class="n">E</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e_e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="n">e_e</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-16'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-16'>#</a>
+      </div>
+      <p>What connections does this groundstation have</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">gs_connection_info</span><span class="p">(</span><span class="n">cookie_jar</span><span class="p">,</span> <span class="n">groundstation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-17'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-17'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">url_gs</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;gs/info&quot;</span>
+    <span class="k">if</span> <span class="n">groundstation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="s2">&quot;groundstation or sat not specified&quot;</span><span class="p">}</span>
+
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gs&quot;</span><span class="p">:</span> <span class="n">groundstation</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_gs</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">info</span><span class="p">,</span>
+                                 <span class="n">cookies</span><span class="o">=</span><span class="n">cookie_jar</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">response_to_str</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+    <span class="k">except</span> <span class="n">E</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e_e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="n">e_e</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-18'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-18'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">gs_sat_info</span><span class="p">(</span><span class="n">cookie_jar</span><span class="p">,</span> <span class="n">groundstation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">url_gs</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;gs/info/sat&quot;</span>
+    <span class="k">if</span> <span class="n">groundstation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="s2">&quot;groundstation or sat not specified&quot;</span><span class="p">}</span>
+
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gs&quot;</span><span class="p">:</span> <span class="n">groundstation</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_gs</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">info</span><span class="p">,</span>
+                                 <span class="n">cookies</span><span class="o">=</span><span class="n">cookie_jar</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-19'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-19'>#</a>
+      </div>
+      <p>response = response_to_str(response)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="k">return</span> <span class="n">response</span>
+    <span class="k">except</span> <span class="n">E</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e_e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="n">e_e</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-20'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-20'>#</a>
+      </div>
+      <p>Get information (location,velocity,battery) from the satellite object directly
+ Arguments:
+     cookie_jar   &ndash; session id
+     sat_handle   &ndash; the satellite handle returned from the spawn command
+     info_type    &ndash; what type of info you want returned (e.g. position,battery,other)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">get_sat_info</span><span class="p">(</span><span class="n">cookie_jar</span><span class="p">,</span> <span class="n">sat_handle</span><span class="p">,</span> <span class="n">info_type</span><span class="o">=</span><span class="s2">&quot;position&quot;</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-21'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-21'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">url_sat</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;sat/info&quot;</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;sat_handle&quot;</span><span class="p">:</span> <span class="n">sat_handle</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="s2">&quot;info_type&quot;</span><span class="p">:</span> <span class="n">info_type</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_sat</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">info</span><span class="p">,</span>
+                                 <span class="n">cookies</span><span class="o">=</span><span class="n">cookie_jar</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-22'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-22'>#</a>
+      </div>
+      <p>response = response_to_str(response)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>        <span class="k">return</span> <span class="n">response</span>
+    <span class="k">except</span> <span class="n">E</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e_e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="n">e_e</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-23'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-23'>#</a>
+      </div>
+      <p>Adds a satellite (sat_handle) to a &ldquo;group&rdquo;. We can then &ldquo;address&rdquo;/send messages
+ to all members of the group simulatenously. For example if we need
+ to get sat position data from &ldquo;starlink sats&rdquo;.  We would add 
+ each starlink sat to a group (e.g. starlink)
+ Arguments:
+     cookie_jar &ndash; session id
+     sat_handle &ndash; handle from the spawn command
+     group_name &ndash; group name (string)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">sat_add_to_group</span><span class="p">(</span><span class="n">cookie_jar</span><span class="p">,</span> <span class="n">sat_handle</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-24'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-24'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">url_sat</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;sat/group&quot;</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;sat_handle&quot;</span><span class="p">:</span> <span class="n">sat_handle</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="n">group_name</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_sat</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">info</span><span class="p">,</span>
+                                 <span class="n">cookies</span><span class="o">=</span><span class="n">cookie_jar</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">response_to_str</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span>
+    <span class="k">except</span> <span class="n">E</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e_e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="n">e_e</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-25'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-25'>#</a>
+      </div>
+      <p>Send every &ldquo;sat&rdquo; in the group a message
+Arguments
+   cookie_jar &ndash; session id
+   group_name (str) - default value  == &ldquo;default&rdquo;
+   info_type  &ndash; type of message to send (default = position)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">sat_group_call</span><span class="p">(</span><span class="n">cookie_jar</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">info_type</span><span class="o">=</span><span class="s2">&quot;position&quot;</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-26'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-26'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">url_sat</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;sat/group_call&quot;</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;group_name&quot;</span><span class="p">:</span> <span class="n">group_name</span><span class="p">,</span> <span class="s2">&quot;type_info&quot;</span><span class="p">:</span> <span class="s2">&quot;position&quot;</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_sat</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">info</span><span class="p">,</span>
+                                 <span class="n">cookies</span><span class="o">=</span><span class="n">cookie_jar</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">response</span>
+    <span class="k">except</span> <span class="n">E</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e_e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="n">e_e</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-27'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-27'>#</a>
+      </div>
+      <p>Create a topic/channel.
+Arguments
+   cookie_jar &ndash; session id
+   topic_name &ndash; topic to create 
+   visible    &ndash; 0; not visible to other users
+                 1; visible to all user s </p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">create_topic</span><span class="p">(</span><span class="n">cookie_jar</span><span class="p">,</span> <span class="n">topic_name</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-28'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-28'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">url_topic_create</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;channel/create&quot;</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;topic&quot;</span><span class="p">:</span> <span class="n">topic_name</span><span class="p">,</span> <span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="n">visible</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_topic_create</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">info</span><span class="p">,</span>
+                                 <span class="n">cookies</span><span class="o">=</span><span class="n">cookie_jar</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+       
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">E</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e_e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="n">e_e</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-29'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-29'>#</a>
+      </div>
+      <p>Push message to a topic/channel
+Arguments
+   cookie_jar    &ndash; session id
+   topic_handle  &ndash; output of the create_topic command 
+   msg           &ndash; message to send (str)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">push_to_topic</span><span class="p">(</span><span class="n">cookie_jar</span><span class="p">,</span> <span class="n">topic_handle</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-30'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-30'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">url_topic_push</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;channel/push&quot;</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;topic&quot;</span><span class="p">:</span> <span class="n">topic_handle</span><span class="p">[</span><span class="s1">&#39;topic&#39;</span><span class="p">],</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="n">msg</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_topic_push</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="n">info</span><span class="p">,</span>
+                                 <span class="n">cookies</span><span class="o">=</span><span class="n">cookie_jar</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">E</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e_e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="n">e_e</span><span class="p">}</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-31'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-31'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="k">def</span> <span class="nf">list_topics</span><span class="p">(</span><span class="n">cookie_jar</span><span class="p">):</span>
+    <span class="n">url_list_topic</span> <span class="o">=</span> <span class="n">URL</span> <span class="o">+</span> <span class="s2">&quot;channel/topics&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url_list_topic</span><span class="p">,</span>
+                                 <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                                 <span class="n">json</span><span class="o">=</span><span class="p">{},</span>
+                                 <span class="n">cookies</span><span class="o">=</span><span class="n">cookie_jar</span><span class="p">,</span>
+                                 <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">E</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e_e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;Error&quot;</span><span class="p">:</span> <span class="n">e_e</span><span class="p">}</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-32'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-32'>#</a>
+      </div>
+      <p>c = create_user(&ldquo;nehalnehal@aero.org&rdquo;,&rdquo;foobar&rdquo;)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span> 
+    <span class="n">user_cookie</span> <span class="o">=</span> <span class="n">sign_in</span><span class="p">(</span><span class="s2">&quot;nehalnehal@aero.org&quot;</span><span class="p">,</span> <span class="s2">&quot;foobar&quot;</span><span class="p">)</span>
+    <span class="n">topic_handle</span> <span class="o">=</span> <span class="n">create_topic</span><span class="p">(</span><span class="n">user_cookie</span><span class="p">,</span> <span class="s2">&quot;testchannel&quot;</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-33'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-33'>#</a>
+      </div>
+      <p>v = push_to_topic(user_cookie, topic_handle, &ldquo;fasdfa&rdquo;)</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>    <span class="n">topics</span> <span class="o">=</span> <span class="n">list_topics</span><span class="p">(</span><span class="n">user_cookie</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">topics</span><span class="p">)</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+  <div class='section' id='section-34'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-34'>#</a>
+      </div>
+      <p>spawn_handle_45555 = spawn_proc(user_cookie, &ldquo;generic&rdquo;, &ldquo;45555&rdquo;, [], 0)
+spawn_handle_45394 = spawn_proc(user_cookie, &ldquo;generic&rdquo;, &ldquo;45394&rdquo;, [], 0)
+gs_handle = spawn_groundstation(user_cookie, &ldquo;gs2&rdquo;, loc=[1, 1])
+gs_connect(user_cookie, gs_handle, spawn_handle_45555)
+gs_connect(user_cookie, gs_handle, spawn_handle_45394)
+gs_connect_response = gs_connection_info(user_cookie, gs_handle)
+print(gs_connect_response)
+response = gs_sat_info(user_cookie, gs_handle)
+ #jiresponse =  sat_info(user_cookie,spawn_handle_45555)
+response =  sat_add_to_group(user_cookie,spawn_handle_45555)
+response =  sat_add_to_group(user_cookie,spawn_handle_45394)
+response =  sat_group_call(user_cookie)
+pdb.set_trace()
+print(response.json())</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

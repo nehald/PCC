@@ -8,8 +8,12 @@ import requests.exceptions as E
 URL = "http://localhost:4000/api/"
 headers = {"Content-Type": "application/json"}
 
-
-response_ = {"join_group": lambda x: x,"spawn": lambda x: x,"gs_to_sat": lambda x: x,"gs_info":lambda x: x} 
+response_ = {
+    "join_group": lambda x: x,
+    "spawn": lambda x: x,
+    "gs_to_sat": lambda x: x,
+    "gs_info": lambda x: x
+}
 
 
 def response_to_str(val):
@@ -26,6 +30,7 @@ def response_to_str(val):
     return rdict
 
 
+# create_user
 def create_user(email, password):
     """
     curl -H "Content-Type: application/json" -X POST \
@@ -39,8 +44,13 @@ def create_user(email, password):
     return response
 
 
+# sign_in
 def sign_in(email, password):
     """ Sign in user
+      curl -H "Content-Type: application/json" -X POST \
+       -d '{"user":{"email":"some@email.com","password":"some password"}}' \
+        http://localhost:4000/api/users/sign_i
+
     Arguments:
         email -- account name
         password` - password
@@ -57,8 +67,10 @@ def sign_in(email, password):
     return cookiejar
 
 
+# spawn_proc
 def spawn_proc(cookie_jar, proc_type, name, extra_channels, visible):
     """Spawn a process
+
     Arguments:
        cookiejar  - user session id
        proc_type - type of process to start
@@ -86,9 +98,10 @@ def spawn_proc(cookie_jar, proc_type, name, extra_channels, visible):
         return {"Error": e_e}
 
 
+# graph_info
 def graph_info(cookiejar):
     """ Get the user graph
-       Arguments: 
+       Arguments:
             cookiejar  - session id
     """
     url_graph = URL + "graph"
@@ -111,7 +124,7 @@ def spawn_groundstation(cookie_jar, name, loc=[0, 0]):
       Arguments:
            cookie_jar  -- session id
            name  -- name of the groundstation (unique)
-           loc  -- location of the groundstation (loc = [33.12,-118.23]) 
+           loc  -- location of the groundstation (loc = [33.12,-118.23])
     """
     url_spawn = URL + "spawn"
     spawn_data = {"name": name, "loc": loc, "proc_type": "groundstation"}
@@ -129,7 +142,11 @@ def spawn_groundstation(cookie_jar, name, loc=[0, 0]):
 
 def gs_connect(cookie_jar, groundstation=None, sat=None):
     """
-     connect a ground station to a satellite
+     Connect a groundstation to a satellite
+      Arguments:
+           cookie_jar     -- session id
+           groundstation  -- groundstation
+           satellite      -- satellite handle
     """
 
     # get the groundstation and sat info from the handle
@@ -153,7 +170,10 @@ def gs_connect(cookie_jar, groundstation=None, sat=None):
 
 
 def gs_connection_info(cookie_jar, groundstation=None):
-    """ What connection does this gs have"""
+    """ What connections does this groundstation have
+
+
+    """
     url_gs = URL + "gs/info"
     if groundstation is None:
         return {"Error": "groundstation or sat not specified"}
@@ -185,23 +205,23 @@ def gs_sat_info(cookie_jar, groundstation=None):
                                  cookies=cookie_jar,
                                  timeout=None)
 
-        #response = response_to_str(response)
+        # response = response_to_str(response)
         return response
     except E.RequestException as e_e:
         return {"Error": e_e}
 
 
-def get_sat_info(cookie_jar, sat_handle,info_type="position"):
+def get_sat_info(cookie_jar, sat_handle, info_type="position"):
     """
      Get information (location,velocity,battery) from the satellite object directly
      Arguments:
-         cookie_jar  -- session id
-         sat_handle  -- the satellite handle returned from the spawn command
-         info_type  -- what type of info you want returned
-    """ 
+         cookie_jar   -- session id
+         sat_handle   -- the satellite handle returned from the spawn command
+         info_type    -- what type of info you want returned (e.g. position,battery,other)
+    """
 
     url_sat = URL + "sat/info"
-    info = {"sat_handle": sat_handle["name"],"info_type":info_type}
+    info = {"sat_handle": sat_handle["name"], "info_type": info_type}
     try:
         response = requests.post(url_sat,
                                  headers=headers,
@@ -209,23 +229,25 @@ def get_sat_info(cookie_jar, sat_handle,info_type="position"):
                                  cookies=cookie_jar,
                                  timeout=None)
 
-        #response = response_to_str(response)
+        # response = response_to_str(response)
         return response
     except E.RequestException as e_e:
         return {"Error": e_e}
 
 
-def sat_add_to_group(cookie_jar, sat_handle,group_name="default"):
-    """ 
-     Adds a satellite (sat_handle) to group.  We can then "address"/send messages
-     to all members of the group simulatenously
+def sat_add_to_group(cookie_jar, sat_handle, group_name="default"):
+    """
+     Adds a satellite (sat_handle) to a "group". We can then "address"/send messages
+     to all members of the group simulatenously. For example if we need
+     to get sat position data from "starlink sats".  We would add
+     each starlink sat to a group (e.g. starlink)
      Arguments:
          cookie_jar -- session id
-         sat_handle  -- handle from the spawn command
-         group_name --  group name (string) 
-   """  
+         sat_handle -- handle from the spawn command
+         group_name -- group name (string)
+   """
     url_sat = URL + "sat/group"
-    info = {"sat_handle": sat_handle["name"],"group_name":group_name}
+    info = {"sat_handle": sat_handle["name"], "group_name": group_name}
     try:
         response = requests.post(url_sat,
                                  headers=headers,
@@ -238,17 +260,18 @@ def sat_add_to_group(cookie_jar, sat_handle,group_name="default"):
     except E.RequestException as e_e:
         return {"Error": e_e}
 
-def sat_group_call(cookie_jar,group_name="default",info_type="position"):
-    """ 
-    Send every "sat" in the group a message 
-    Arguments:
-       cookie_jar == session id
-       group_name (str) -- default value  == "default" 
-       info_type  -- type of message to send (default = position)
-    """ 
-       
+
+def sat_group_call(cookie_jar, group_name="default", type_info="position"):
+    """
+    Send every "sat" in the group a message
+    Arguments
+       cookie_jar -- session id
+       group_name (str) - default value  == "default"
+       type_info  -- type of message to send (default = position)
+    """
+    type_info = "position"
     url_sat = URL + "sat/group_call"
-    info = {"group_name":group_name,"type_info":"position"}
+    info = {"group_name": group_name, "type_info": type_info}
     try:
         response = requests.post(url_sat,
                                  headers=headers,
@@ -261,37 +284,112 @@ def sat_group_call(cookie_jar,group_name="default",info_type="position"):
         return {"Error": e_e}
 
 
-def create_topic(cookie_jar,topic):
+def create_topic(cookie_jar, topic_name, visible=1):
+    """
+    Create a topic/channel.
+    Arguments
+       cookie_jar -- session id
+       topic_name -- topic to create
+       visible    -- 0; not visible to other users
+                     1; visible to all user s
+    """
+
     url_topic_create = URL + "channel/create"
-    info = {"topic":topic}
+    info = {"topic": topic_name, "visible": visible}
     try:
-       response = requests.post(url_topic_create,
-                                headers=headers,
-                                json=info,
-                                cookies=cookie_jar,
-                                timeout=None)
-                        
-       return response.json()
+        response = requests.post(url_topic_create,
+                                 headers=headers,
+                                 json=info,
+                                 cookies=cookie_jar,
+                                 timeout=None)
+
+        return response.json()
     except E.RequestException as e_e:
-       return {"Error": e_e}
+        return {"Error": e_e}
+
+
+def push_to_topic(cookie_jar, topic_handle, msg):
+    """
+    Push message to a topic/channel
+    Arguments
+       cookie_jar    -- session id
+       topic_handle  -- output of the create_topic command
+       msg           -- message to send (str)
+    """
+    url_topic_push = URL + "channel/push"
+    info = {"topic": topic_handle['topic'], "msg": msg}
+    try:
+        response = requests.post(url_topic_push,
+                                 headers=headers,
+                                 json=info,
+                                 cookies=cookie_jar,
+                                 timeout=None)
+        return response.json()
+    except E.RequestException as e_e:
+        return {"Error": e_e}
+
+
+def list_topics(cookie_jar):
+    """
+     List topics
+     Arguments:
+        cookie_jar  -- session id
+    """
+
+    url_list_topic = URL + "channel/topics"
+    try:
+        response = requests.post(url_list_topic,
+                                 headers=headers,
+                                 json={},
+                                 cookies=cookie_jar,
+                                 timeout=None)
+        return response.json()
+    except E.RequestException as e_e:
+        return {"Error": e_e}
+
+
+def list_pcc_procs(cookie_jar, info_type, info_val=None):
+    """
+    PCC process commands
+    Arguments:
+        cookie_jar -- session id
+        info_type  -- {key,whereis,members}
+        info_val   -- {group_name,process id}
+   """
+
+    url_list_proc = URL + "swarm/info"
+    try:
+        info = {"key":info_type, "val": info_val}
+        response = requests.post(url_list_proc,
+                                 headers=headers,
+                                 json=info,
+                                 cookies=cookie_jar,
+                                 timeout=None)
+
+        return response.json()
+    except E.RequestException as e_e:
+        return {"Error": e_e}
+
 
 if __name__ == '__main__':
-   #c = create_user("nehalnehal@aero.org","foobar")
-   user_cookie = sign_in("nehalnehal@aero.org", "foobar")
-   topic = create_topic(user_cookie,"testchannel")
-   print(topic) 
-   pdb.set_trace()
-   #spawn_handle_45555 = spawn_proc(user_cookie, "generic", "45555", [], 0)
-   #spawn_handle_45394 = spawn_proc(user_cookie, "generic", "45394", [], 0)
-   #gs_handle = spawn_groundstation(user_cookie, "gs2", loc=[1, 1])
-   #gs_connect(user_cookie, gs_handle, spawn_handle_45555)
-   #gs_connect(user_cookie, gs_handle, spawn_handle_45394)
-   #gs_connect_response = gs_connection_info(user_cookie, gs_handle)
-   #print(gs_connect_response) 
-   #response = gs_sat_info(user_cookie, gs_handle)
-#  #jiresponse =  sat_info(user_cookie,spawn_handle_45555)  
-   #response =  sat_add_to_group(user_cookie,spawn_handle_45555)  
-   #response =  sat_add_to_group(user_cookie,spawn_handle_45394)  
-   #response =  sat_group_call(user_cookie)  
-   #pdb.set_trace()
-   #print(response.json())
+    # c = create_user("nehalnehal@aero.org","foobar")
+    pdb.set_trace()
+    user_cookie = sign_in("nehalnehal@aero.org", "foobar")
+    topic_handle = create_topic(user_cookie, "testchannel")
+    # v = push_to_topic(user_cookie, topic_handle, "fasdfa")
+    topics = list_topics(user_cookie)
+    print(topics)
+    # spawn_handle_45555 = spawn_proc(user_cookie, "generic", "45555", [], 0)
+    # spawn_handle_45394 = spawn_proc(user_cookie, "generic", "45394", [], 0)
+    # gs_handle = spawn_groundstation(user_cookie, "gs2", loc=[1, 1])
+    # gs_connect(user_cookie, gs_handle, spawn_handle_45555)
+    # gs_connect(user_cookie, gs_handle, spawn_handle_45394)
+    # gs_connect_response = gs_connection_info(user_cookie, gs_handle)
+    # print(gs_connect_response)
+    # response = gs_sat_info(user_cookie, gs_handle)
+#  #jiresponse =  sat_info(user_cookie,spawn_handle_45555)
+# response =  sat_add_to_group(user_cookie,spawn_handle_45555)
+# response =  sat_add_to_group(user_cookie,spawn_handle_45394)
+# response =  sat_group_call(user_cookie)
+# pdb.set_trace()
+# print(response.json())
