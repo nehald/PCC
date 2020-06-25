@@ -23,6 +23,7 @@ defmodule CCoreWeb.Router do
     post "/sat/group_call",ApiController,:sat_group_call
     post "/channel/create",ApiController,:topic_create
     post "/channel/push",ApiController,:topic_push
+    post "/channel/topics",ApiController,:topic_list
     post "/swarm/info",ApiController,:swarm_info
   end
  

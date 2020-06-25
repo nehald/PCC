@@ -201,7 +201,6 @@ defmodule CCoreWeb.ApiController do
     json(conn, return_dict)
   end
 
-
   #### start the channel
   def topic_create(conn, params) do
     current_user =
@@ -209,8 +208,9 @@ defmodule CCoreWeb.ApiController do
       |> get_session(:current_user_id)
       |> get_user_id
 
+    is_visible = Map.get(params,"visible")
     topic = Map.get(params, "topic")
-    topic_name = current_user<>":topic:"<>topic
+    topic_name = current_user <> ":topic:" <> topic
     params = %{:current_user => current_user, :user_topic => topic_name}
 
     socket_opts = [
@@ -221,11 +221,40 @@ defmodule CCoreWeb.ApiController do
     {:ok, socket} = PhoenixClient.Socket.start_link(socket_opts)
     :timer.sleep(1000)
     {:ok, response, channel} = PhoenixClient.Channel.join(socket, topic_name)
-    topic_name = current_user<>":topic:"<>topic
-    Swarm.register_name(topic_name,channel) 
-    return_dict =%{"topic"=>topic_name}   
+    Swarm.register_name(topic_name, channel)
+    case is_visible do
+      1 -> Swarm.join("topics",channel)
+      _ -> nil
+    end 
+
+    return_dict = %{"topic" => topic_name}
     json(conn, return_dict)
   end
+
+  def topic_push(conn, params) do
+    current_user =
+      conn
+      |> get_session(:current_user_id)
+      |> get_user_id
+
+    msg = Map.get(params, "msg")
+    msg_map = %{"msg" => msg}
+    topic_name = Map.get(params, "topic")
+    channel = Swarm.whereis_name(topic_name)
+    # params = %{:current_user => current_user, :user_topic => topic_name}
+    ok = PhoenixClient.Channel.push_async(channel, "shout", msg_map)
+    return_dict = %{"cmd" => "channel push"}
+    json(conn, return_dict)
+  end
+
+
+   def topic_list(conn,params) do
+     topic_pids = Swarm.members("topics") 
+     r_swarm = Map.new(Swarm.registered, fn {key,val} -> {val,key} end) 
+     IO.puts inspect r_swarm 
+     topic_names = Enum.map(topic_pids, fn c-> Map.get(r_swarm,c) end) 
+     json(conn,topic_names) 
+  end 
 
   def swarm_info(conn, params) do
     key = Map.get(params, "key")

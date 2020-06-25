@@ -26,7 +26,6 @@ defmodule CCoreWeb.UserSocket do
     # "proc_type" => "generic", "user_id" => "<0.594.0>", 
     # "user_topic" => "user:nehal.desaix@aero.org:topic", "visible" => "0", "vsn" => "2.0.0"}
 
-    IO.puts inspect params
     user_topic  = Map.get(params,"user_topic")
     current_user  = Map.get(params,"current_user")
  
