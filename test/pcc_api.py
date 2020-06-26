@@ -110,13 +110,58 @@ def graph_info(cookiejar):
         response = requests.post(url_graph,
                                  headers=headers,
                                  json=info_data,
-                                 cookie=cookiejar)
+                                 cookies=cookiejar)
+
+        dotfile = response.content.decode('utf-8') 
+        dotfile = json.loads(dotfile)['dotfile'] 
+        return dotfile
+    except:
+        return {"Error": "info"}
+
+
+def graph_add_edge(cookiejar, node_s_handle=None, node_e_handle=None):
+    """ Get the user graph
+        Arguments:
+            cookiejar  -- session id
+            node_s     -- start node
+            node_e     -- end ndoe 
+    """
+    if node_s_handle is None or node_e_handle is None:
+        return -1
+    url_graph = URL + "graph/add_edge"
+    info_data = {"node_start": node_s_handle['name'], "node_end": node_e_handle['name']}
+    try:
+        response = requests.post(url_graph,
+                                 headers=headers,
+                                 json=info_data,
+                                 cookies=cookiejar)
 
         response = response_to_str(response)
         return response
     except:
         return {"Error": "info"}
 
+
+def graph_add_node(cookiejar, node_a):
+    """ Get the user graph
+         Arguments:
+             cookiejar  - session id
+             node_a     - node to add (str)  
+    """
+    if node_a is None:
+        return -1
+    url_graph = URL + "graph/add_node"
+    info_data = {"node_a": node_a}
+    try:
+        response = requests.post(url_graph,
+                                 headers=headers,
+                                 json=info_data,
+                                 cookies=cookiejar)
+
+        response = response_to_str(response)
+        return response
+    except:
+        return {"Error": "info"}
 
 def spawn_groundstation(cookie_jar, name, loc=[0, 0]):
     """
@@ -359,7 +404,7 @@ def list_pcc_procs(cookie_jar, info_type, info_val=None):
 
     url_list_proc = URL + "swarm/info"
     try:
-        info = {"key":info_type, "val": info_val}
+        info = {"key": info_type, "val": info_val}
         response = requests.post(url_list_proc,
                                  headers=headers,
                                  json=info,
@@ -375,10 +420,19 @@ if __name__ == '__main__':
     # c = create_user("nehalnehal@aero.org","foobar")
     user_cookie = sign_in("nehalnehal@aero.org", "foobar")
     topic_handle = create_topic(user_cookie, "testchannel")
-    v = push_to_topic(user_cookie, topic_handle, "fasdfa")
-    topics = list_topics(user_cookie)
+    #graph_dot = graph_info(user_cookie)
+    #pdb.set_trace() 
+    #kv = push_to_topic(user_cookie, topic_handle, "fasdfa")
+    #topics = list_topics(user_cookie)
     spawn_handle_45555 = spawn_proc(user_cookie, "generic", "45555", [], 0)
     spawn_handle_45394 = spawn_proc(user_cookie, "generic", "45394", [], 0)
+    spawn_handle_45394 = spawn_proc(user_cookie, "generic", "45394", [], 0)
+    
+    graph_dot = graph_info(user_cookie)
+    pdb.set_trace()
+    fp = open("graph_file.dot","w")
+    fp.write(graph_dot)
+    fp.close()
     # gs_handle = spawn_groundstation(user_cookie, "gs2", loc=[1, 1])
     # gs_connect(user_cookie, gs_handle, spawn_handle_45555)
     # gs_connect(user_cookie, gs_handle, spawn_handle_45394)

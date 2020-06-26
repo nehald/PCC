@@ -185,7 +185,7 @@ defmodule CCoreWeb.ApiController do
     json(conn, info)
   end
 
-  def graph(conn, params) do
+  def graph_info(conn, params) do
     current_user =
       conn
       |> get_session(:current_user_id)
@@ -196,10 +196,45 @@ defmodule CCoreWeb.ApiController do
       |> get_user_graph_id
       |> Swarm.whereis_name()
 
-    dotfile = GenServer.call(user_graph_pid, {:graph_info, []})
+    {:ok,dotfile} = GenServer.call(user_graph_pid, {:graph_info, []})
     return_dict = %{"dotfile" => dotfile}
     json(conn, return_dict)
   end
+
+
+  def add_edge(conn,params) do
+   current_user =
+      conn
+      |> get_session(:current_user_id)
+      |> get_user_id
+
+    user_graph_pid =
+      current_user
+      |> get_user_graph_id
+      |> Swarm.whereis_name()
+
+    node_a = Map.get(params,"node_start")
+    node_b = Map.get(params,"node_end")
+    GenServer.cast(user_graph_pid,{:add_edge,node_a,node_b})
+    return_dict=%{"cmd"=> "add_edge", "s"=>node_a, "e"=>node_b}
+    json(conn, return_dict)
+   end  
+
+  ## add mde
+  def add_node(conn,params) do
+    current_user =
+      conn
+      |> get_session(:current_user_id)
+      |> get_user_id
+
+    user_graph_pid =
+      current_user
+      |> get_user_graph_id
+      |> Swarm.whereis_name()
+    
+     node_a = Map.get(params,"node_a")
+     GenServer.cast(user_graph_pid,{:add_node,node_a})
+   end 
 
   #### start the channel
   def topic_create(conn, params) do

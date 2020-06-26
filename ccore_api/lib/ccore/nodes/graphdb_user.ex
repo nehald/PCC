@@ -59,6 +59,7 @@ defmodule CCore.GraphDbUser do
     g = Map.get(state, :graph)
     next_g = Graph.add_edge(g, item_a, item_b)
     msg = %{:key => "add_edge", :value => %{:s => item_a, :e => item_b}}
+    IO.puts inspect msg
     next_state = Map.put(state, :graph, next_g)
     {:noreply, next_state}
   end

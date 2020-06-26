@@ -14,7 +14,10 @@ defmodule CCoreWeb.Router do
     pipe_through [:api, :api_auth] 
     resources "/users", UserController, except: [:create,:new, :edit]
     post "/spawn",ApiController,:spawn
-    post "/graph",ApiController,:get_graph 
+    post "/graph",ApiController,:graph_info 
+    post "/graph/add_edge",ApiController,:add_edge
+    post "/graph/del_node",ApiController,:del_link
+    post "/graph/add_node",ApiController,:add_node
     post "/gs/connect",ApiController,:gs_connect
     post "/gs/info",ApiController,:gs_info
     post "/gs/info/sat",ApiController,:gs_sat_info
